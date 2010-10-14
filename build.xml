@@ -1,0 +1,671 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+ * Copyright (C) 2008-2009 E2M.
+ *
+ * The code hereby is the private full property of the E2M company, Paris, France.
+ * 
+ * You have no right to re-use or modify it. There are no open-source, nor free licence
+ * attached to it!
+ -->
+<!--
+This Ant buildfile requires that you have included the following Ant library extensions:
+<ul>
+  <li><a href="http://ant-contrib.sourceforge.net/">Ant-Contrib</a></li>
+  <li><a href="http://www.oopsconsultancy.com/software/xmltask/">xmltask</a></li>
+</ul> 
+-->
+<project
+  name="droid4me.ext"
+  default="init"
+  basedir="."
+>
+
+  <description>The aim of this Ant buildfile is to propose services for the droid4me.ext library project.</description>
+
+  <!-- The AntContrib library extends Ant. -->
+  <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+
+  <!-- The XmlTask Ant task. -->
+  <taskdef
+    name="xmltask"
+    classname="com.oopsconsultancy.xmltask.ant.XmlTask"
+  />
+
+  <target
+    name="init"
+    depends=""
+    description="Default target, which should always be called first be other targets."
+  >
+    <property
+      name="androidSDKHome.directoryPath"
+      location="/opt/android-sdk"
+    />
+    <property
+      name="androidPlatform.version"
+      value="1.6"
+    />
+    <property
+      name="androidPlatform.relativePath"
+      value="platforms/android-${androidPlatform.version}"
+    />
+    <property
+      name="androidJar.filePath"
+      location="${androidSDKHome.directoryPath}/${androidPlatform.relativePath}/android.jar"
+    />
+    <property
+      name="googleMapsJar.filePath"
+      location="${androidSDKHome.directoryPath}/add-ons/google_apis-3/libs/maps.jar"
+    />
+    <property
+      name="droid4meLibrary.filePath"
+      location="libs/com.smartnsoft.droid4me.jar"
+    />
+    <property
+      name="com.android.internals.RJar.filePath"
+      location="libs/com.android.internals.R.jar"
+    />
+    <property
+      name="android.view-widgetJar.filePath"
+      location="libs/android.view-widget.jar"
+    />
+    <property
+      name="temporary.directoryPath"
+      location="tmp"
+    />
+    <property
+      name="classes.directoryPath"
+      location="${temporary.directoryPath}/bin"
+    />
+    <property
+      name="distribution.directoryPath"
+      location="dist"
+    />
+    <property
+      name="droid4meext.top.packageName"
+      value="com.smartnsoft.droid4me"
+    />
+    <property
+      name="droid4meext.packageName"
+      value="${droid4meext.top.packageName}.ext"
+    />
+    <property
+      name="droid4meext.packagePath"
+      value="com/smartnsoft/droid4me/ext"
+    />
+    <property
+      name="droid4meextJar.fileName"
+      value="${droid4meext.packageName}.jar"
+    />
+    <property
+      name="optimizedJar.filePath"
+      location="${distribution.directoryPath}/${droid4meextJar.fileName}"
+    />
+    <property
+      name="javaDoc.filePath"
+      location="docs/api"
+    />
+    <property
+      name="tweakedSource.directoryPath"
+      location="${temporary.directoryPath}/tweaked"
+    />
+    <path id="droid4me.classpath">
+      <pathelement location="${googleMapsJar.filePath}"/>
+      <pathelement location="${androidJar.filePath}"/>
+      <pathelement location="${droid4meLibrary.filePath}"/>
+      <pathelement location="${com.android.internals.RJar.filePath}"/>
+      <pathelement location="${android.view-widgetJar.filePath}"/>
+    </path>
+  </target>
+
+  <target
+    name="clean"
+    depends="init"
+    description="Cleans up the project"
+  >
+    <delete dir="${temporary.directoryPath}"/>
+    <delete dir="${javaDoc.filePath}"/>
+  </target>
+
+  <target
+    name="build"
+    depends="init"
+    description="Builds the library."
+  >
+    <!--property
+      name="optimizeOption"
+      value="-dontoptimize"
+    /-->
+    <!--property
+      name="obfuscateOption"
+      value="-dontobfuscate"
+    /-->
+    <ant target="proguard"/>
+  </target>
+
+  <target
+    name="buildAndDeploy"
+    depends="build"
+    description="Builds the library and copies it in situ."
+  >
+    <property
+      name="targetCopy.directoryPath"
+      location="../didunozat-android/lib"
+    />
+    <copy
+      file="${optimizedJar.filePath}"
+      toDir="${targetCopy.directoryPath}"
+    />
+  </target>
+
+  <target
+    name="tweakCode"
+    depends="init"
+    description="Copies and pastes the source code by modyfying it."
+  >
+    <input
+      message="Name of the target application package?"
+      addproperty="externalApplicationPackageName"
+    />
+    <!-- TODO: add a timestamp to the version -->
+    <loadfile
+      srcFile="VERSION.txt"
+      property="droid4meextVersionName"
+    />
+    <input
+      message="Name of droid4me.ext version?"
+      addproperty="droid4meextVersionName"
+    />
+    <delete dir="${tweakedSource.directoryPath}"/>
+    <mkdir dir="${tweakedSource.directoryPath}"/>
+    <copy toDir="${tweakedSource.directoryPath}">
+      <fileset dir="src">
+        <include name="**/*"/>
+      </fileset>
+      <filterchain>
+        <filterreader classname="org.apache.tools.ant.filters.ReplaceTokens">
+          <param
+            type="token"
+            name="PACKAGE_NAME"
+            value="${externalApplicationPackageName}"
+          />
+          <param
+            type="token"
+            name="DROID4MEEXT_VERSION_NAME"
+            value="${droid4meextVersionName}"
+          />
+       </filterreader>
+      </filterchain>
+    </copy>
+  </target>
+
+  <target
+    name="jar"
+    depends="init, tweakCode"
+    description="Builds a raw jar of the library."
+  >
+    <property
+      name="droi4meextJar.filePath"
+      location="${distribution.directoryPath}/${droid4meextJar.fileName}"
+    />
+    <delete dir="${classes.directoryPath}"/>
+    <mkdir dir="${classes.directoryPath}"/>
+    <echo>Compiling for Android v${androidPlatform.version}</echo>
+    <javac
+      encoding="ISO-8859-1"
+      target="1.5"
+      debug="true"
+      optimize="true"
+      extdirs=""
+      srcdir="${tweakedSource.directoryPath}"
+      destdir="${classes.directoryPath}"
+    >
+      <classpath refid="droid4me.classpath"/>
+      <include name="*/**"/>
+    </javac>
+    <jar
+      basedir="${classes.directoryPath}"
+      destfile="${droi4meextJar.filePath}"
+      update="false"
+    />
+  </target>
+
+  <target
+    name="proguard"
+    depends="init"
+    description="Runs Proguard on the library."
+  >
+    <property
+      name="optimizeOption"
+      value="-optimizationpasses 4"
+    />
+    <property
+      name="obfuscateOption"
+      value=""
+    />
+    <property
+      name="droi4meextJar.filePath"
+      location="${temporary.directoryPath}/${droid4meextJar.fileName}"
+    />
+    <antcall target="jar"/>
+    <!-- Creation of a temporary folder that contains the non optimized jar without some package. -->
+    <property
+      name="proguardBound.directoryPath"
+      location="${temporary.directoryPath}/proguard"
+    />
+    <delete dir="${proguardBound.directoryPath}"/>
+    <mkdir dir="${proguardBound.directoryPath}"/>
+    <unjar
+      src="${droi4meextJar.filePath}"
+      dest="${proguardBound.directoryPath}"
+    >
+      <patternset>
+        <exclude name="${droid4meext.packagePath}/widget/**/*"/>
+      </patternset>
+    </unjar>
+    <property
+      name="filteredJar.filePath"
+      location="${temporary.directoryPath}/${droid4meext.packageName}-proguardBound.jar"
+    />
+    <jar
+      basedir="${proguardBound.directoryPath}"
+      destfile="${filteredJar.filePath}"
+    />
+    <delete dir="${proguardBound.directoryPath}"/>
+    <property
+      name="expandedAndFiltered.directoryPath"
+      location="${temporary.directoryPath}/filtered"
+    />
+    <delete dir="${expandedAndFiltered.directoryPath}"/>
+    <mkdir dir="${expandedAndFiltered.directoryPath}"/>
+    <unjar
+      src="${droi4meextJar.filePath}"
+      dest="${expandedAndFiltered.directoryPath}"
+    >
+      <patternset>
+        <include name="${droid4meext.packagePath}/widget/**/*"/>
+      </patternset>
+    </unjar>
+    <java
+      jar="lib/proguard.jar"
+      fork="true"
+      failonerror="true"
+    >
+      <jvmarg value="-Dmaximum.inlined.code.length=32"/>
+       <arg line="-injars ${filteredJar.filePath}"/>
+       <arg line="-libraryjars ${androidJar.filePath}:${googleMapsJar.filePath}:${droid4meLibrary.filePath}:${com.android.internals.RJar.filePath}"/>
+       <arg line="-outjars ${optimizedJar.filePath}"/>
+       <!-- Because we do not target the J2ME platform. -->
+       <arg value="-dontpreverify"/>
+       <arg value="${obfuscateOption}"/>
+       <!--arg value="-dontshrink"/-->
+       <arg value="${optimizeOption}"/>
+       <arg value="-forceprocessing"/>
+       <arg value="-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod"/>
+       <!--arg value="-keepnames public class ${droid4meext.packageName}.**"/-->
+       <!--arg value="-keepclasseswithmembers class ${droid4meext.packageName}.** { *** *(...); *** *; &lt;init&gt;(...); }"/>
+       <arg value="-keepclasseswithmembers enum ${droid4meext.packageName}.** { *** *(...); *** *; &lt;init&gt;(...); }"/-->
+       <arg value="-keep public class * { public *; protected *; }"/>
+       <arg value="-keep public interface * { public *; }"/>
+       <arg value="-target 1.5"/>
+       <arg value="-verbose"/>
+     </java>
+     <jar
+       destfile="${optimizedJar.filePath}"
+       update="true"
+     >
+       <fileset dir="${expandedAndFiltered.directoryPath}"/>
+     </jar>
+     <delete dir="${expandedAndFiltered.directoryPath}"/>
+     <delete file="${droi4meextJar.filePath}"/>
+     <delete dir="${classes.directoryPath}"/>
+  </target>
+
+  <target
+    name="generateDoc"
+    depends="init"
+    description="Generates the JavaDoc of the library source code."
+  >
+    <delete dir="${javaDoc.filePath}"/>
+    <javadoc
+      defaultexcludes="yes"
+      destdir="${javaDoc.filePath}"
+      author="true"
+      version="true"
+      use="true"
+      includenosourcepackages="true"
+      windowtitle="droid4me API"
+      overview="src/${droid4meext.packagePath}/overview.html"
+    >
+      <classpath refid="droid4me.classpath"/>
+      <packageset dir="src">
+        <include name="**/*.java"/>
+        <exclude name="**/SensorHelper.java"/>
+        <exclude name="**/NativeLogger.java"/>
+        <exclude name="**/ui/TimeAndDate.java"/>
+        <exclude name="**/ui/ToggleImage.java"/>
+      </packageset>
+      <fileset dir="src">
+        <include name="**/*.java"/>
+        <exclude name="**/SensorHelper.java"/>
+        <exclude name="**/NativeLogger.java"/>
+        <exclude name="**/ui/TimeAndDate.java"/>
+        <exclude name="**/ui/ToggleImage.java"/>
+      </fileset>
+      <doctitle><![CDATA[<h1>droid4me API documentation</h1>]]></doctitle>
+      <bottom><![CDATA[<i>Copyright &#169; 2009-2010 E2M. All Rights Reserved.</i>]]></bottom>
+      <group
+        title="Shared in the framework"
+        packages="${droid4meext.packageName}.framework"
+       />
+      <group
+        title="Caching and persistence"
+        packages="e${droid4meext.packageName}.cache:${droid4meext.packageName}.ws:${droid4meext.packageName}.wscache"
+       />
+      <group
+        title="User Interface"
+        packages="${droid4meext.packageName}.ui:${droid4meext.packageName}.widget:${droid4meext.packageName}.graphics.drawable"
+       />
+    </javadoc>
+  </target>
+
+  <target
+    name="package"
+    depends="init, build, generateDoc"
+    description="Generates a package of the framework with the binaries and the documentation."
+  >
+    <mkdir dir="${temporary.directoryPath}"/>
+    <copy
+      file="README-binary.txt"
+      tofile="${temporary.directoryPath}/README.txt"
+    />
+    <mkdir dir="${distribution.directoryPath}"/>
+    <zip
+      destfile="${distribution.directoryPath}/droid4me.zip"
+      update="false"
+    >
+      <zipfileset
+        dir="${javaDoc.filePath}"
+        prefix="doc"
+      />
+      <zipfileset
+        file="${optimizedJar.filePath}"
+        prefix="lib"
+      />
+      <fileset dir=".">
+        <include name="LICENSE.txt"/>
+      </fileset>
+      <fileset file="${temporary.directoryPath}/README.txt"/>
+    </zip>
+  </target>
+
+  <target
+    name="export"
+    depends="init"
+    description="Builds a zip which contains the library source code."
+  >
+    <property
+      name="exportedSource.directoryPath"
+      location="${temporary.directoryPath}/exported"
+    />
+    <property
+      name="baseCopy.directoryPath"
+      location="../droid4me-20minutes.fr"
+    />
+    <mkdir dir="${temporary.directoryPath}"/>
+    <copy
+      file="README-source.txt"
+      tofile="${temporary.directoryPath}/README.txt"
+    />
+    <delete dir="${exportedSource.directoryPath}"/>
+    <copy toDir="${exportedSource.directoryPath}">
+      <fileset dir=".">
+        <include name="LICENSE.txt"/>
+      </fileset>
+      <fileset file="${temporary.directoryPath}/README.txt"/>
+    </copy>
+    <copy
+      toDir="${exportedSource.directoryPath}"
+      preservelastmodified="true"
+      includeEmptyDirs="false"
+    >
+      <fileset dir="${baseCopy.directoryPath}/src">
+        <exclude name="**/SensorHelper.java"/>
+        <exclude name="**/RawSmartListView.java"/>
+        <exclude name="**/ExpandableSmartListView.java"/>
+        <exclude name="**/SmartGridView.java"/>
+        <!--exclude name="**/NativeLogger.java"/-->
+        <!--exclude name="**/DbCachedUriStreamParser.java"/>
+        <exclude name="**/MemoryCachedUriStreamParser.java"/-->
+        <!--exclude name="**/ui/**/*"/-->
+        <exclude name="**/ui/TimeAndDate.java"/>
+        <exclude name="**/ui/ToggleImage.java"/>
+        <exclude name="**/SmartMapActivity.java"/>
+      </fileset>
+      <filterchain>
+        <concatfilter prepend="license-java.txt"/>
+        <tokenfilter>
+          <replaceregex
+            pattern="\@since(.*)$"
+            replace=""
+          />
+        </tokenfilter>
+      </filterchain>
+    </copy>
+  </target>
+
+  <target
+    name="embed"
+    depends="init"
+    description="Copies and pastes the library source code into another project."
+  >
+    <property
+      name="project.directoryPath"
+      location="../Logic-Immo"
+    />
+    <property
+      name="excludedPath"
+      value="${droid4meext.packagePath}/app/SmartMapActivity.java"
+    />
+    <copy
+      toDir="${project.directoryPath}"
+      preservelastmodified="true"
+    >
+      <fileset dir=".">
+        <include name="src/**/*"/>
+        <include name="libs/com.android.internals.R.jar"/>
+        <exclude name="src/${excludedPath}"/>
+      </fileset>
+    </copy>
+    <xmltask
+      source="${project.directoryPath}/.classpath"
+      dest="${project.directoryPath}/.classpath"
+      indent="false"
+      outputter="default"
+    >
+      <remove path="/classpath/classpathentry[@kind = &quot;lib&quot; and @path = &quot;libs/droid4me.jar&quot;]"/>
+    </xmltask>
+    <xmltask
+      source="${project.directoryPath}/.classpath"
+      dest="${project.directoryPath}/.classpath"
+      indent="false"
+      outputter="default"
+    >
+      <insert
+        path="/classpath"
+        xml="&lt;classpathentry kind=&quot;lib&quot; path=&quot;libs/com.android.internals.R.jar&quot;/&gt;"
+      />
+    </xmltask>
+  </target>
+
+  <target
+    name="unembed"
+    depends="init"
+    description="Removes the library source code from another project."
+  >
+    <property
+      name="project.directoryPath"
+      location="../Logic-Immo"
+    />
+    <delete includeEmptyDirs="true">
+      <fileset dir="${project.directoryPath}">
+        <include name="src/${droid4meext.packagePath}/**"/>
+        <include name="src/${droid4meext.top.packageName}"/>
+      </fileset>
+    </delete>
+    <xmltask
+      source="${project.directoryPath}/.classpath"
+      dest="${project.directoryPath}/.classpath"
+      indent="false"
+      outputter="default"
+    >
+      <insert
+        path="/classpath"
+        xml="&lt;classpathentry kind=&quot;lib&quot; path=&quot;libs/droid4me.jar&quot;/&gt;"
+      />
+    </xmltask>
+    <xmltask
+      source="${project.directoryPath}/.classpath"
+      dest="${project.directoryPath}/.classpath"
+      indent="false"
+      outputter="default"
+    >
+      <remove path="/classpath/classpathentry[@kind = &quot;lib&quot; and @path = &quot;libs/com.android.internals.R.jar&quot;]"/>
+    </xmltask>
+  </target>
+
+  <target
+    name="retrieveEmbedded"
+    depends="init"
+    description="Removes the library source code from another project, while extracting the modified files."
+  >
+    <property
+      name="project.directoryPath"
+      location="../Logic-Immo"
+    />
+    <move
+      todir="."
+      overwrite="false"
+    >
+      <fileset dir="${project.directoryPath}">
+        <include name="src/${droid4meext.packagePath}/**"/>
+      </fileset>
+    </move>
+    <antcall target="unembed"/>
+  </target>
+
+  <target
+    name="reversApk.init"
+    depends="init"
+    description="Asks for the information about the Android .apk to disassemble."
+  >
+    <input
+      message="File path of the .apk to analyze"
+      addproperty="apk.filePath"
+      defaultvalue=""
+    />
+    <basename
+      property="apkPrefix"
+      file="${apk.filePath}"
+      suffix=".apk"
+    />
+    <input
+      message="Directory where to ouput the result"
+      addproperty="output.directoryPath"
+      defaultvalue="${apk.filePath}/../../${apkPrefix}"
+    />
+  </target>
+
+  <target
+    name="reversApk"
+    depends="init, reversApk.init"
+    description="Unzips an Android .apk file and runs some disassembling on it."
+  >
+    <property
+      name="work.directoryPath"
+      location="${output.directoryPath}"
+    />
+    <mkdir dir="${work.directoryPath}"/>
+    <!--unzip
+      src="${apk.filePath}"
+      dest="${work.directoryPath}"
+    /-->
+    <exec
+      executable="unzip"
+      dir="${work.directoryPath}"
+    >
+      <arg value="${apk.filePath}"/>
+    </exec>
+    <property
+      name="dex.directoryPath"
+      location="${work.directoryPath}/dex"
+    />
+    <property
+      name="dedexJar.filePath"
+      location="lib/ddx1.10.jar"
+    />
+    <mkdir dir="${dex.directoryPath}"/>
+    <java
+      dir="${dex.directoryPath}"
+      jar="${dedexJar.filePath}"
+      fork="true"
+    >
+      <arg value="-d"/>
+      <arg path="${dex.directoryPath}"/>
+      <arg path="${work.directoryPath}/classes.dex"/>
+    </java>
+    <for param="wbxml.filePath">
+      <path>
+        <fileset dir="${work.directoryPath}">
+          <include name="**/*.xml"/>
+        </fileset>
+      </path>
+      <sequential>
+        <var
+          name="wbxml.fileName"
+          unset="true"
+        />
+        <basename
+          property="wbxml.fileName"
+          file="@{wbxml.filePath}"
+        />
+        <var
+          name="resourceRelative.directoryPath"
+          unset="true"
+        />
+        <propertyregex
+          property="resourceRelative.directoryPath"
+          input="@{wbxml.filePath}"
+          regexp="${work.directoryPath}/(.*)"
+          select="\1"
+        />
+        <exec
+          executable="${androidSDKHome.directoryPath}/${androidPlatform.relativePath}/tools/aapt"
+          dir="@{wbxml.filePath}/.."
+          output="@{wbxml.filePath}/../${wbxml.fileName}.txt"
+        >
+          <arg line="dump xmltree"/>
+          <arg path="${apk.filePath}"/>
+          <arg line="${resourceRelative.directoryPath}"/>
+        </exec>
+      </sequential>
+    </for>
+  </target>
+
+  <!-- See http://code.google.com/p/android-apktool/ -->
+  <target
+    name="reverseApkTool"
+    depends="init, reversApk.init"
+    description="Revers-engineers an Android application."
+  >
+    <java
+      jar="lib/apktool.jar"
+      fork="true"
+      failonerror="true"
+    >
+       <arg value="d"/>
+       <arg path="${apk.filePath}"/>
+       <arg path="${output.directoryPath}"/>
+     </java>
+  </target>
+
+</project>
