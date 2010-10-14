@@ -74,14 +74,14 @@ public abstract class SmartApplication
         {
           final I18NExt i18nExt = getI18NExt();
           new AlertDialog.Builder(activity).setTitle(getI18N().dialogBoxErrorTitle).setIcon(android.R.drawable.ic_dialog_alert).setMessage(
-              getI18N().otherProblemHint).setPositiveButton(android.R.string.ok, new OnClickListener()
+              getI18N().otherProblemHint).setNegativeButton(android.R.string.cancel, new OnClickListener()
           {
             public void onClick(DialogInterface dialogInterface, int i)
             {
               // We leave the activity, because we cannot go any further
               activity.finish();
             }
-          }).setNeutralButton(i18nExt.reportButtonLabel, new OnClickListener()
+          }).setPositiveButton(i18nExt.reportButtonLabel, new OnClickListener()
           {
             public void onClick(DialogInterface dialogInterface, int i)
             {
