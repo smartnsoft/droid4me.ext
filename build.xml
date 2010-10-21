@@ -143,13 +143,29 @@ This Ant buildfile requires that you have included the following Ant library ext
   </target>
 
   <target
+    name="buildAndDeploy.automated"
+    depends="init"
+    description="Builds the library and copies it in situ."
+  >
+    <property
+      name="externalApplicationPackageName"
+      location="com.soouat.memokidsanimals"
+    />
+    <property
+      name="targetCopy.directoryPath"
+      location="../MemoKids/lib"
+    />
+    <antcall target="buildAndDeploy"/>
+  </target>
+
+  <target
     name="buildAndDeploy"
     depends="build"
     description="Builds the library and copies it in situ."
   >
-    <property
-      name="targetCopy.directoryPath"
-      location="../didunozat-android/lib"
+    <input
+      message="Folder where to drop the library file?"
+      addproperty="targetCopy.directoryPath"
     />
     <copy
       file="${optimizedJar.filePath}"
