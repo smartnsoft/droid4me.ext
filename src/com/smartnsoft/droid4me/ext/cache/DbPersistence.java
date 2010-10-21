@@ -77,7 +77,7 @@ public final class DbPersistence
    */
   private static final int THREAD_POOL_DEFAULT_SIZE = 3;
 
-  private final static ThreadPoolExecutor THREAD_POOL = new ThreadPoolExecutor(0, DbPersistence.THREAD_POOL_DEFAULT_SIZE, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadFactory()
+  private final static ThreadPoolExecutor THREAD_POOL = new ThreadPoolExecutor(1, DbPersistence.THREAD_POOL_DEFAULT_SIZE, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadFactory()
   {
     public Thread newThread(Runnable runnable)
     {
@@ -451,7 +451,7 @@ public final class DbPersistence
     }
     if (log.isDebugEnabled())
     {
-      log.debug("Loaded in memory the onput stream related to the URI '" + uri + "' " + bytes.length + " bytes in " + (System.currentTimeMillis() - start) + " ms");
+      log.debug("Loaded in memory the output stream related to the URI '" + uri + "' " + bytes.length + " bytes in " + (System.currentTimeMillis() - start) + " ms");
     }
     if (asynchronous == false)
     {
