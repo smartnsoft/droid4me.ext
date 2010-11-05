@@ -111,7 +111,22 @@ public abstract class BasisImageDownloader
     void onBindLocalImage(ImageView imageView, String imageUid, Object imageSpecs);
 
     /**
-     * Is invoked once the image bitmap is ready, whether it has been downloaded from Internet or retrieved from the cache.
+     * Is invoked every time once the underlying image bitmap is not <code>null</code> ready in memory.
+     * 
+     * <p>
+     * It is NOT ensured that this method will be run from the UI thread.
+     * </p>
+     * 
+     * @param imageView
+     *          will be <code>null</code> if, and only if the provided {@link ImageView} is <code>null</code>
+     * @param bitmap
+     *          cannot be <code>null</code>
+     */
+    void onImageReady(ImageView imageView, Bitmap bitmap, String imageUid, Object imageSpecs);
+
+    /**
+     * Is invoked once the image bitmap is ready when the provided {@link ImageView} is not <code>null</code>, whether it has been downloaded from
+     * Internet or retrieved from the cache.
      * 
      * <p>
      * It is ensured that this method will be run from the UI thread.
@@ -214,6 +229,10 @@ public abstract class BasisImageDownloader
     }
 
     public void onBeforeImageDownloaded(String imageUid, Object imageSpecs, URLConnection urlConnection)
+    {
+    }
+
+    public void onImageReady(ImageView imageView, Bitmap bitmap, String imageUid, Object imageSpecs)
     {
     }
 

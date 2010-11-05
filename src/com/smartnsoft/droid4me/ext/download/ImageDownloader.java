@@ -312,8 +312,6 @@ public class ImageDownloader
       setTemporaryImageIfPossible(isFromGuiThread);
 
       // And we stack the image download command
-      // try
-      // {
       if (imageView != null)
       {
         // But we test whether the download is still required
@@ -410,6 +408,7 @@ public class ImageDownloader
       {
         usedBitmap = otherUsedBitmap;
         usedBitmap.rememberAccessed();
+        instructions.onImageReady(imageView, usedBitmap.getBitmap(), imageUid, imageSpecs);
         if (imageView != null)
         {
           // if (log.isDebugEnabled())
@@ -504,6 +503,7 @@ public class ImageDownloader
         return;
       }
       usedBitmap = putInCache(url, bitmap);
+      instructions.onImageReady(imageView, usedBitmap.getBitmap(), imageUid, imageSpecs);
       bindBitmap();
     }
 
@@ -591,6 +591,10 @@ public class ImageDownloader
         usedBitmap.rememberAccessed();
       }
 
+      if (usedBitmap != null)
+      {
+        instructions.onImageReady(imageView, usedBitmap.getBitmap(), imageUid, imageSpecs);
+      }
       bindBitmap();
     }
 
@@ -715,17 +719,18 @@ public class ImageDownloader
       final Bitmap theBitmap;
       try
       {
-//        final long start = System.currentTimeMillis();
+        // final long start = System.currentTimeMillis();
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         options.inDither = false;
         options.inDensity = 0;
         theBitmap = BitmapFactory.decodeStream(inputStream, null, options);
-//        final long stop = System.currentTimeMillis();
-//        if (log.isDebugEnabled() && bitmap != null)
-//        {
-//          log.debug("The thread '" + Thread.currentThread().getName() + "' decoded in " + (stop - start) + " ms the bitmap with density " + theBitmap.getDensity() + " relative to the URL '" + url + "'");
-//        }
+        // final long stop = System.currentTimeMillis();
+        // if (log.isDebugEnabled() && bitmap != null)
+        // {
+        // log.debug("The thread '" + Thread.currentThread().getName() + "' decoded in " + (stop - start) + " ms the bitmap with density " +
+        // theBitmap.getDensity() + " relative to the URL '" + url + "'");
+        // }
         return theBitmap;
       }
       catch (OutOfMemoryError exception)
