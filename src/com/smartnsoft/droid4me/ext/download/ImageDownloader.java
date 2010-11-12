@@ -408,7 +408,7 @@ public class ImageDownloader
       {
         usedBitmap = otherUsedBitmap;
         usedBitmap.rememberAccessed();
-        instructions.onImageReady(imageView, usedBitmap.getBitmap(), imageUid, imageSpecs);
+        instructions.onImageReady(true, imageView, usedBitmap.getBitmap(), imageUid, imageSpecs);
         if (imageView != null)
         {
           // if (log.isDebugEnabled())
@@ -500,10 +500,11 @@ public class ImageDownloader
       final Bitmap bitmap = convertInputStream(inputStream);
       if (bitmap == null)
       {
+        instructions.onImageReady(false, imageView, null, imageUid, imageSpecs);
         return;
       }
       usedBitmap = putInCache(url, bitmap);
-      instructions.onImageReady(imageView, usedBitmap.getBitmap(), imageUid, imageSpecs);
+      instructions.onImageReady(true, imageView, usedBitmap.getBitmap(), imageUid, imageSpecs);
       bindBitmap();
     }
 
@@ -578,6 +579,7 @@ public class ImageDownloader
             }
           }
           // We let intentionally the 'usedBitmap' null
+          instructions.onImageReady(false, imageView, null, imageUid, imageSpecs);
         }
         else
         {
@@ -593,7 +595,7 @@ public class ImageDownloader
 
       if (usedBitmap != null)
       {
-        instructions.onImageReady(imageView, usedBitmap.getBitmap(), imageUid, imageSpecs);
+        instructions.onImageReady(true, imageView, usedBitmap.getBitmap(), imageUid, imageSpecs);
       }
       bindBitmap();
     }
