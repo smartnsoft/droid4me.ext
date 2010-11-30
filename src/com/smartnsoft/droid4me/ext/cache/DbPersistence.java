@@ -137,9 +137,9 @@ public final class DbPersistence
     }
     catch (SQLiteException exception)
     {
-      if (log.isWarnEnabled())
+      if (log.isInfoEnabled())
       {
-        log.warn("The cache database seems to be corrupted: it is now re-initialized", exception);
+        log.info("The cache database seems to be unexisting, unavailable or corrupted: it is now re-initialized");
       }
       try
       {
