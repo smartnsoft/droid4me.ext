@@ -619,6 +619,23 @@ This Ant buildfile requires that you have included the following Ant library ext
       name="dedexJar.filePath"
       location="lib/ddx1.10.jar"
     />
+    <!-- Use the http://code.google.com/p/dex2jar/ framework-->
+    <java
+      dir="${dex.directoryPath}"
+      fork="true"
+      classname="pxb.android.dex2jar.v3.Main"
+    >
+      <classpath>
+        <fileset dir="lib">
+          <include name="dex2jar*.jar"/>
+          <include name="commons-io-*.jar"/>
+          <include name="asm-debug-all-*.jar"/>
+          <include name="logback-*.jar"/>
+          <include name="slf4j-api-*.jar"/>
+        </fileset>
+      </classpath>
+      <arg path="${work.directoryPath}/classes.dex"/>
+    </java>
     <mkdir dir="${dex.directoryPath}"/>
     <java
       dir="${dex.directoryPath}"
