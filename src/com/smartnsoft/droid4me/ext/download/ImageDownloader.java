@@ -41,7 +41,6 @@ import android.widget.ImageView;
  * @author Édouard Mercier
  * @since 2009.02.19
  */
-// TODO: handle the stopping of the thread
 public class ImageDownloader
     extends BasisImageDownloader
 {
@@ -492,20 +491,22 @@ public class ImageDownloader
         cleanUpCache();
         return;
       }
-      if (imageView != null && asynchronousDownloadCommands.remove(imageView) == false)
-      {
-        // Another command has been set for the image in the meantime: we do nothing
-        return;
-      }
+
+      // Indicates whether another command has been set for the image in the meantime
+      final boolean forgetTheBinding = imageView != null && asynchronousDownloadCommands.remove(imageView) == false;
+
       final Bitmap bitmap = convertInputStream(inputStream);
-      if (bitmap == null)
+      if (forgetTheBinding == false && bitmap == null)
       {
         instructions.onImageReady(false, imageView, null, imageUid, imageSpecs);
         return;
       }
       usedBitmap = putInCache(url, bitmap);
-      instructions.onImageReady(true, imageView, usedBitmap.getBitmap(), imageUid, imageSpecs);
-      bindBitmap();
+      if (forgetTheBinding == false)
+      {
+        instructions.onImageReady(true, imageView, usedBitmap.getBitmap(), imageUid, imageSpecs);
+        bindBitmap();
+      }
     }
 
     /**
@@ -580,6 +581,8 @@ public class ImageDownloader
           }
           // We let intentionally the 'usedBitmap' null
           instructions.onImageReady(false, imageView, null, imageUid, imageSpecs);
+          // We cannot do anything further in that case
+          return;
         }
         else
         {
