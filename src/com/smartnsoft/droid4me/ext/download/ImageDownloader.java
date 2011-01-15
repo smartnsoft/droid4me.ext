@@ -574,7 +574,7 @@ public class ImageDownloader
         {
           if (inputStreamAsynchronous == false)
           {
-            if (log.isWarnEnabled())
+            if (url != null && url.length() >= 1 && log.isWarnEnabled())
             {
               log.warn("The bitmap relative to the URL '" + url + "' is null");
             }
@@ -607,19 +607,28 @@ public class ImageDownloader
         throws IOException
     {
       InputStream inputStream = null;
-      try
+      // We do not event attempt to request for the input stream if the bitmap URI is null or empty
+      if (url != null && url.length() >= 1)
       {
-        inputStream = instructions.getInputStream(imageUid, imageSpecs, url, this);
-      }
-      catch (IOException exception)
-      {
-        if (log.isWarnEnabled())
+        try
         {
-          log.warn("Could not get the provided input stream corresponding to the URL '" + url + "'", exception);
+          inputStream = instructions.getInputStream(imageUid, imageSpecs, url, this);
         }
-        // In that case, we consider that the input stream custom download was a failure
-        throw exception;
+        catch (IOException exception)
+        {
+          if (log.isWarnEnabled())
+          {
+            log.warn("Could not get the provided input stream corresponding to the URL '" + url + "'", exception);
+          }
+          // In that case, we consider that the input stream custom download was a failure
+          throw exception;
+        }
       }
+      else
+      {
+        return null;
+      }
+
       if (inputStream != null)
       {
         // if (log.isDebugEnabled())
@@ -687,7 +696,7 @@ public class ImageDownloader
       {
         if (inputStreamAsynchronous == false)
         {
-          if (log.isWarnEnabled())
+          if (url != null && url.length() >= 1 && log.isWarnEnabled())
           {
             log.warn("The input stream used to build the bitmap corresponding to the URL '" + url + "' is null");
           }

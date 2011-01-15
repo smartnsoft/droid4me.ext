@@ -171,7 +171,7 @@ public abstract class BasisImageDownloader
     void onBeforeImageDownloaded(String imageUid, Object imageSpecs, URLConnection urlConnection);
 
     /**
-     * Is invoked just before the stream corresponding to the image is started.
+     * Is invoked just before the stream corresponding to the image is started, provided its computed URL is not null nor empty.
      * 
      * <p>
      * This is a good place for fetching from a local cache the input stream related to the image.
