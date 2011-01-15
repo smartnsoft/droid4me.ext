@@ -122,10 +122,13 @@ public abstract class SmartApplication
   @Override
   protected void checkLicense(Application application)
   {
-    if (application.getPackageName().equals("@PACKAGE_NAME@") == false)
+    final String allowedPackageName = "@PACKAGE_NAME@";
+    if (application.getPackageName().equals(allowedPackageName) == true || (Boolean.parseBoolean("@ALLOW_TOP_PACKAGE@") == true && application.getPackageName().startsWith(
+        allowedPackageName) == true))
     {
-      throw new Error("You are not allowed to use the droid4me.ext library for this application!");
+      return;
     }
+    throw new Error("You are not allowed to use the droid4me.ext library for this application!");
   }
 
   @Override

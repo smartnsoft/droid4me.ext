@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
- * (C) Copyright 2009-2011 Smart&Soft SAS (http://www.smartnsoft.com/) and contributors.
+ * C) Copyright 2009-2011 Smart&Soft SAS (http://www.smartnsoft.com/) and contributors.
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Lesser General Public License
- * (LGPL) version 2.1 which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/lgpl.html
+ * The code hereby is the full property of Smart&Soft, SIREN 444 622 690.
+ * 34, boulevard des Italiens - 75009 - Paris - France
+ * contact@smartnsoft.com - 00 33 6 79 60 05 49
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
+ * You are not allowed to use the source code or the resulting binary code, nor to modify the source code, without prior permission of the owner.
+ *
+ * This library is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *
  * Contributors:
  *     E2M - initial API and implementation
@@ -191,14 +189,47 @@ This Ant buildfile requires that you have included the following Ant library ext
       message="Name of the target application package?"
       addproperty="externalApplicationPackageName"
     />
-    <!-- TODO: add a timestamp to the version -->
+    <input
+      message="Allow applications sub packages?"
+      addproperty="allowSubPackagesRaw"
+      validargs="y,n"
+      defaultvalue="n"
+    />
+    <if>
+      <equals
+        arg1="${allowSubPackagesRaw}"
+        arg2="y"
+      />
+      <then>
+        <property
+          name="allowSubPackages"
+          value="true"
+        />
+      </then>
+      <else>
+        <property
+          name="allowSubPackages"
+          value="false"
+        />
+      </else>
+    </if>
     <loadfile
       srcFile="VERSION.txt"
-      property="droid4meextVersionName"
+      property="droid4meextVersionNameRaw"
     />
     <input
       message="Name of droid4me.ext version?"
-      addproperty="droid4meextVersionName"
+      addproperty="droid4meextVersionNameRaw"
+    />
+    <tstamp>
+      <format
+        property="timestamp"
+        pattern="yyyy.MM.dd-HH:mm"
+      />
+    </tstamp>
+    <property
+      name="droid4meextVersionName"
+      value="${droid4meextVersionNameRaw} built on ${timestamp}"
     />
     <delete dir="${tweakedSource.directoryPath}"/>
     <mkdir dir="${tweakedSource.directoryPath}"/>
@@ -212,6 +243,11 @@ This Ant buildfile requires that you have included the following Ant library ext
             type="token"
             name="PACKAGE_NAME"
             value="${externalApplicationPackageName}"
+          />
+          <param
+            type="token"
+            name="ALLOW_TOP_PACKAGE"
+            value="${allowSubPackages}"
           />
           <param
             type="token"
