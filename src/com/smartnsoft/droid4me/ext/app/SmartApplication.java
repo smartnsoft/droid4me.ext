@@ -67,6 +67,11 @@ public abstract class SmartApplication
       {
         return true;
       }
+      // We log the exception in that case
+      if (log.isErrorEnabled())
+      {
+        log.error("An unexpected error occured!", throwable);
+      }
       // We make sure that the dialog is popped from the UI thread
       activity.runOnUiThread(new Runnable()
       {
