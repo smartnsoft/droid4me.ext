@@ -14,6 +14,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +58,8 @@ public final class DbPersistence
     public static final String CONTENTS = "contents";
 
     public static final String LAST_UPDATE = "lastUpdate";
+
+    public static final String CONTEXT = "context";
 
     private CacheColumns()
     {
@@ -225,7 +230,7 @@ public final class DbPersistence
         database.beginTransaction();
         try
         {
-          database.execSQL("CREATE TABLE " + tableName + " (" + DbPersistence.CacheColumns._ID + " INTEGER PRIMARY KEY, " + DbPersistence.CacheColumns.URI + " TEXT, " + DbPersistence.CacheColumns.LAST_UPDATE + " TIMESTAMP, " + DbPersistence.CacheColumns.CONTENTS + " BLOG);");
+          database.execSQL("CREATE TABLE " + tableName + " (" + DbPersistence.CacheColumns._ID + " INTEGER PRIMARY KEY" + ", " + DbPersistence.CacheColumns.URI + " TEXT" + ", " + DbPersistence.CacheColumns.LAST_UPDATE + " TIMESTAMP" + ", " + DbPersistence.CacheColumns.CONTEXT + " BLOG" + ", " + DbPersistence.CacheColumns.CONTENTS + " BLOG);");
           // We create an index, so as to optimize the database performance
           database.execSQL("CREATE UNIQUE INDEX " + tableName + "_index ON " + tableName + " ( " + DbPersistence.CacheColumns.URI + " )");
           database.setVersion(expectedVersion);
@@ -281,11 +286,11 @@ public final class DbPersistence
     }
   }
 
-  public InputStream getRawInputStream(String uri)
+  @Override
+  public Business.InputAtom extractInputStream(String uri)
       throws Persistence.PersistenceException
   {
-    final Business.InputAtom atom = readInputStream(uri);
-    return (atom == null ? null : atom.inputStream);
+    return readInputStream(uri);
   }
 
   public Business.InputAtom readInputStream(String uri)
@@ -333,14 +338,39 @@ public final class DbPersistence
       {
         return null;
       }
-      final byte[] blob = cursor.getBlob(cursor.getColumnIndex(DbPersistence.CacheColumns.CONTENTS));
+      final byte[] contentsBlob = cursor.getBlob(cursor.getColumnIndex(DbPersistence.CacheColumns.CONTENTS));
+      final byte[] contextBlob = cursor.getBlob(cursor.getColumnIndex(DbPersistence.CacheColumns.CONTEXT));
+      final Serializable serializable;
+      if (contextBlob != null)
+      {
+        try
+        {
+          final ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(contextBlob));
+          try
+          {
+            serializable = (Serializable) objectInputStream.readObject();
+          }
+          finally
+          {
+            objectInputStream.close();
+          }
+        }
+        catch (Exception exception)
+        {
+          throw new Persistence.PersistenceException();
+        }
+      }
+      else
+      {
+        serializable = null;
+      }
       final Date timestamp = new Date(cursor.getLong(cursor.getColumnIndex(DbPersistence.CacheColumns.LAST_UPDATE)));
-      final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(blob);
+      final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(contentsBlob);
       if (log.isDebugEnabled())
       {
         log.debug("Read from the table '" + tableName + "' the contents related to the URI '" + uri + "' in " + (System.currentTimeMillis() - start) + " ms");
       }
-      return new Business.InputAtom(timestamp, byteArrayInputStream);
+      return new Business.InputAtom(timestamp, byteArrayInputStream, serializable);
     }
     finally
     {
@@ -352,16 +382,16 @@ public final class DbPersistence
   }
 
   @Override
-  public InputStream cacheInputStream(String uri, InputStream inputStream)
+  public Business.InputAtom flushInputStream(String uri, Business.InputAtom inputAtom)
       throws Persistence.PersistenceException
   {
-    return internalCacheInputStream(uri, inputStream, null, false);
+    return internalCacheInputStream(uri, inputAtom, false);
   }
 
-  public InputStream writeInputStream(String uri, Business.InputAtom atom)
+  public InputStream writeInputStream(String uri, Business.InputAtom inputAtom)
       throws Persistence.PersistenceException
   {
-    return internalCacheInputStream(uri, atom.inputStream, atom.timestamp, true);
+    return internalCacheInputStream(uri, inputAtom, true).inputStream;
   }
 
   public void remove(String uri)
@@ -402,18 +432,19 @@ public final class DbPersistence
     }
   }
 
-  private InputStream internalCacheInputStream(final String uri, InputStream inputStream, final Date timestamp, final boolean asynchronous)
+  private Business.InputAtom internalCacheInputStream(final String uri, Business.InputAtom inputAtom, final boolean asynchronous)
       throws Persistence.PersistenceException
   {
     if (storageBackendAvailable == false)
     {
-      return inputStream;
+      return inputAtom;
     }
 
     // We immediately duplicate the input stream
     final long start = System.currentTimeMillis();
     final ByteArrayInputStream newInputStream;
     final byte[] bytes;
+    final InputStream inputStream = inputAtom.inputStream;
     if (inputStream != null)
     {
       final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -453,9 +484,11 @@ public final class DbPersistence
     {
       log.debug("Loaded in memory the output stream related to the URI '" + uri + "' " + bytes.length + " bytes in " + (System.currentTimeMillis() - start) + " ms");
     }
+    final Date timestamp = inputAtom.timestamp;
+    final Serializable context = inputAtom.context;
     if (asynchronous == false)
     {
-      updateDb(uri, timestamp, bytes, start, asynchronous);
+      updateDb(uri, timestamp, context, bytes, start, asynchronous);
     }
     else
     {
@@ -465,7 +498,7 @@ public final class DbPersistence
         {
           try
           {
-            updateDb(uri, timestamp, bytes, start, asynchronous);
+            updateDb(uri, timestamp, context, bytes, start, asynchronous);
           }
           catch (Throwable throwable)
           {
@@ -478,10 +511,10 @@ public final class DbPersistence
         }
       });
     }
-    return newInputStream;
+    return new Business.InputAtom(timestamp, newInputStream, context);
   }
 
-  private void updateDb(String uri, Date timestamp, byte[] bytes, long start, boolean asynchronous)
+  private void updateDb(String uri, Date timestamp, Serializable context, byte[] bytes, long start, boolean asynchronous)
   {
     if (log.isDebugEnabled())
     {
@@ -526,6 +559,20 @@ public final class DbPersistence
         contentValues.put(DbPersistence.CacheColumns.LAST_UPDATE, timestamp.getTime());
       }
       contentValues.put(DbPersistence.CacheColumns.CONTENTS, bytes);
+      if (context != null)
+      {
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        final ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+        try
+        {
+          objectOutputStream.writeObject(context);
+          contentValues.put(DbPersistence.CacheColumns.CONTEXT, byteArrayOutputStream.toByteArray());
+        }
+        finally
+        {
+          objectOutputStream.close();
+        }
+      }
       if (insert == true)
       {
         writeableDb.insert(tableName, null, contentValues);
@@ -535,6 +582,10 @@ public final class DbPersistence
         writeableDb.update(tableName, contentValues, DbPersistence.CacheColumns.URI + " = '" + uri + "'", null);
       }
       writeableDb.setTransactionSuccessful();
+    }
+    catch (IOException exception)
+    {
+      throw new Persistence.PersistenceException();
     }
     finally
     {
