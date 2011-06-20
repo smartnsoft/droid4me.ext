@@ -664,6 +664,7 @@ This Ant buildfile requires that you have included the following Ant library ext
       name="dedexJar.filePath"
       location="lib/ddx1.10.jar"
     />
+    <mkdir dir="${dex.directoryPath}"/>
     <!-- Use the http://code.google.com/p/dex2jar/ framework-->
     <java
       dir="${dex.directoryPath}"
@@ -681,7 +682,10 @@ This Ant buildfile requires that you have included the following Ant library ext
       </classpath>
       <arg path="${work.directoryPath}/classes.dex"/>
     </java>
-    <mkdir dir="${dex.directoryPath}"/>
+    <move
+      file="${work.directoryPath}/classes.dex.dex2jar.jar"
+      toFile="classes.jar"
+    />
     <java
       dir="${dex.directoryPath}"
       jar="${dedexJar.filePath}"
