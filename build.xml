@@ -49,11 +49,15 @@ This Ant buildfile requires that you have included the following Ant library ext
     />
     <property
       name="androidPlatform.version"
-      value="1.6"
+      value="8"
     />
     <property
       name="androidPlatform.relativePath"
       value="platforms/android-${androidPlatform.version}"
+    />
+    <property
+      name="androidPlatformTools.relativePath"  
+      value="platform-tools"
     />
     <property
       name="androidJar.filePath"
@@ -721,7 +725,7 @@ This Ant buildfile requires that you have included the following Ant library ext
           select="\1"
         />
         <exec
-          executable="${androidSDKHome.directoryPath}/${androidPlatform.relativePath}/tools/aapt"
+          executable="${androidSDKHome.directoryPath}/${androidPlatformTools.relativePath}/aapt"
           dir="@{wbxml.filePath}/.."
           output="@{wbxml.filePath}/../${wbxml.fileName}.txt"
         >
