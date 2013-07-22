@@ -17,11 +17,13 @@
 <!--
 This Ant buildfile requires that you have included the following Ant library extensions:
 <ul>
+  <li><a href="http://maven.apache.org/ant-tasks/">Maven Ant Tasks</a></li>
   <li><a href="http://ant-contrib.sourceforge.net/">Ant-Contrib</a></li>
   <li><a href="http://www.oopsconsultancy.com/software/xmltask/">xmltask</a></li>
 </ul> 
 -->
 <project
+  xmlns:artifact="antlib:org.apache.maven.artifact.ant"
   name="droid4me.ext"
   default="init"
   basedir="."
@@ -154,34 +156,33 @@ This Ant buildfile requires that you have included the following Ant library ext
   </target>
 
   <target
-    name="buildAndDeploy.automated"
-    depends="init"
-    description="Builds the library and copies it in situ."
+    name="install"
+    depends="init, tweakCode"
+    description="Installs the library into the Maven repository."
   >
-    <property
-      name="externalApplicationPackageName"
-      location="com.smartnsoft.netanswer.ensae"
-    />
-    <property
-      name="targetCopy.directoryPath"
-      location="../Ensae-android/libs"
-    />
-    <antcall target="buildAndDeploy"/>
+    <artifact:mvn
+      mavenHome="${maven.directoryPath}"
+      pom="${tweakedSource.directoryPath}/pom.xml"
+      fork="true"
+    >
+      <arg line="clean install"/>
+      <arg line="-Dandroid.sdk.path=${sdk.dir}"/>
+    </artifact:mvn>
   </target>
 
   <target
-    name="buildAndDeploy"
-    depends="build"
-    description="Builds the library and copies it in situ."
+    name="deploy"
+    depends="init, tweakCode"
+    description="Deploys the library into the Maven repository."
   >
-    <input
-      message="Folder where to drop the library file?"
-      addproperty="targetCopy.directoryPath"
-    />
-    <copy
-      file="${optimizedJar.filePath}"
-      toDir="${targetCopy.directoryPath}"
-    />
+    <artifact:mvn
+      mavenHome="${maven.directoryPath}"
+      pom="${tweakedSource.directoryPath}/pom.xml"
+      fork="true"
+    >
+      <arg line="clean deploy"/>
+      <arg line="-Dandroid.sdk.path=${sdk.dir}"/>
+    </artifact:mvn>
   </target>
 
   <target
@@ -189,51 +190,9 @@ This Ant buildfile requires that you have included the following Ant library ext
     depends="init"
     description="Copies and pastes the source code by modyfying it."
   >
-    <input
-      message="Name of the target application package?"
-      addproperty="externalApplicationPackageName"
-    />
-    <input
-      message="Allow applications sub packages?"
-      addproperty="allowSubPackagesRaw"
-      validargs="y,n"
-      defaultvalue="n"
-    />
-    <if>
-      <equals
-        arg1="${allowSubPackagesRaw}"
-        arg2="y"
-      />
-      <then>
-        <property
-          name="allowSubPackages"
-          value="true"
-        />
-      </then>
-      <else>
-        <property
-          name="allowSubPackages"
-          value="false"
-        />
-      </else>
-    </if>
     <loadfile
       srcFile="VERSION.txt"
       property="droid4meextVersionNameRaw"
-    />
-    <input
-      message="Name of droid4me.ext version?"
-      addproperty="droid4meextVersionNameRaw"
-    />
-    <tstamp>
-      <format
-        property="timestamp"
-        pattern="yyyy.MM.dd-HH:mm"
-      />
-    </tstamp>
-    <property
-      name="droid4meextVersionName"
-      value="${droid4meextVersionNameRaw} built on ${timestamp}"
     />
     <delete dir="${tweakedSource.directoryPath}"/>
     <mkdir dir="${tweakedSource.directoryPath}"/>
@@ -241,25 +200,10 @@ This Ant buildfile requires that you have included the following Ant library ext
       <fileset dir="src">
         <include name="**/*"/>
       </fileset>
-      <filterchain>
-        <filterreader classname="org.apache.tools.ant.filters.ReplaceTokens">
-          <param
-            type="token"
-            name="PACKAGE_NAME"
-            value="${externalApplicationPackageName}"
-          />
-          <param
-            type="token"
-            name="ALLOW_TOP_PACKAGE"
-            value="${allowSubPackages}"
-          />
-          <param
-            type="token"
-            name="DROID4MEEXT_VERSION_NAME"
-            value="${droid4meextVersionName}"
-          />
-       </filterreader>
-      </filterchain>
+      <fileset dir=".">
+        <include name="build.xml"/>
+        <include name="pom.xml"/>
+      </fileset>
     </copy>
   </target>
 
