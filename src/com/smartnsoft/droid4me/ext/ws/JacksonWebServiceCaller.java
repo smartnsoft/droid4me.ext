@@ -1,7 +1,5 @@
 package com.smartnsoft.droid4me.ext.ws;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -48,6 +46,32 @@ import com.smartnsoft.droid4me.ws.WebServiceCaller;
 public abstract class JacksonWebServiceCaller
     extends WebServiceCaller
 {
+
+  protected static class JacksonParsingException
+      extends CallException
+  {
+
+    private static final long serialVersionUID = 1L;
+
+    public JacksonParsingException(Throwable throwable)
+    {
+      super(throwable);
+    }
+
+  }
+
+  protected final static class JacksonJsonParsingException
+      extends JacksonParsingException
+  {
+
+    private static final long serialVersionUID = 1L;
+
+    public JacksonJsonParsingException(Throwable throwable)
+    {
+      super(throwable);
+    }
+
+  }
 
   @SuppressWarnings("unused")
   private static final class WebServiceCallerSSLSocketFactory
@@ -200,28 +224,30 @@ public abstract class JacksonWebServiceCaller
     return super.getContent(uri, callType, response);
   }
 
-  protected static final class JacksonParsingException
-      extends CallException
-  {
-
-    private static final long serialVersionUID = 1L;
-
-    public JacksonParsingException(Throwable throwable)
-    {
-      super(throwable);
-    }
-
-  }
-
+  /**
+   * Responsible for creating the Jackson object mapper.
+   * 
+   * @return a valid object mapper, which can be customized
+   */
   protected ObjectMapper computeObjectMapper()
   {
-    return new ObjectMapper();
+    final ObjectMapper theObjectMapper = new ObjectMapper();
+    // We indicate to the parser not to fail in case of unknown properties, for backward compatibility reasons
+    // See http://stackoverflow.com/questions/6300311/java-jackson-org-codehaus-jackson-map-exc-unrecognizedpropertyexception
+    theObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    theObjectMapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, true);
+    return theObjectMapper;
+  }
+
+  protected final ObjectMapper getObjectMapper()
+  {
+    prepareObjectMapper();
+    return objectMapper;
   }
 
   public final <ContentType> String serializeJson(ContentType businessObject)
       throws JsonProcessingException
   {
-    objectMapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, true);
     final String jsonString;
     jsonString = objectMapper.writeValueAsString(businessObject);
     if (log.isDebugEnabled())
@@ -259,49 +285,24 @@ public abstract class JacksonWebServiceCaller
   }
 
   @SuppressWarnings("unchecked")
-  private <ContentType> ContentType deserializeJson(InputStream inputStream, TypeReference<?> typeReference, Class<?> theClass)
+  protected <ContentType> ContentType deserializeJson(InputStream inputStream, TypeReference<?> typeReference, Class<?> theClass)
       throws JacksonParsingException
   {
     prepareObjectMapper();
-    final ByteArrayInputStream byteArrayInputStream;
-    if (inputStream instanceof ByteArrayInputStream)
-    {
-      byteArrayInputStream = (ByteArrayInputStream) inputStream;
-    }
-    else
-    {
-      final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      byte[] buffer = new byte[8192];
-      int readBytes = 0;
-      try
-      {
-        while ((readBytes = inputStream.read(buffer)) != -1)
-        {
-          outputStream.write(buffer, 0, readBytes);
-        }
-      }
-      catch (IOException exception)
-      {
-        throw new JacksonParsingException(exception);
-      }
-      byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
-    }
-    // We mark the stream at the beginning
-    byteArrayInputStream.mark(0);
     try
     {
       if (theClass != null)
       {
-        return (ContentType) objectMapper.readValue(byteArrayInputStream, theClass);
+        return (ContentType) objectMapper.readValue(inputStream, theClass);
       }
       else
       {
-        return (ContentType) objectMapper.readValue(byteArrayInputStream, typeReference);
+        return (ContentType) objectMapper.readValue(inputStream, typeReference);
       }
     }
     catch (JsonMappingException exception)
     {
-      throw new JacksonParsingException(exception);
+      throw new JacksonJsonParsingException(exception);
     }
     catch (Exception exception)
     {
@@ -314,9 +315,6 @@ public abstract class JacksonWebServiceCaller
     if (objectMapper == null)
     {
       objectMapper = computeObjectMapper();
-      // We indicate to the parser not to fail in case of unknown properties, for backward compatibility reasons
-      // See http://stackoverflow.com/questions/6300311/java-jackson-org-codehaus-jackson-map-exc-unrecognizedpropertyexception
-      objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
   }
 
