@@ -197,10 +197,8 @@ This Ant buildfile requires that you have included the following Ant library ext
     <delete dir="${tweakedSource.directoryPath}"/>
     <mkdir dir="${tweakedSource.directoryPath}"/>
     <copy toDir="${tweakedSource.directoryPath}">
-      <fileset dir="src">
-        <include name="**/*"/>
-      </fileset>
       <fileset dir=".">
+        <include name="src/**/*"/>
         <include name="build.xml"/>
         <include name="pom.xml"/>
       </fileset>
