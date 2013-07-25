@@ -58,6 +58,31 @@ public abstract class JacksonWebServiceCaller
       super(throwable);
     }
 
+    public JacksonParsingException(String message, int code)
+    {
+      super(message, code);
+    }
+
+    public JacksonParsingException(String message, Throwable throwable, int code)
+    {
+      super(message, throwable, code);
+    }
+
+    public JacksonParsingException(String message, Throwable throwable)
+    {
+      super(message, throwable);
+    }
+
+    public JacksonParsingException(String message)
+    {
+      super(message);
+    }
+
+    public JacksonParsingException(Throwable message, int code)
+    {
+      super(message, code);
+    }
+
   }
 
   protected final static class JacksonJsonParsingException
@@ -66,15 +91,14 @@ public abstract class JacksonWebServiceCaller
 
     private static final long serialVersionUID = 1L;
 
-    public JacksonJsonParsingException(Throwable throwable)
+    protected JacksonJsonParsingException(Throwable throwable)
     {
       super(throwable);
     }
 
   }
 
-  @SuppressWarnings("unused")
-  private static final class WebServiceCallerSSLSocketFactory
+  protected static final class WebServiceCallerSSLSocketFactory
       extends SSLSocketFactory
   {
 
