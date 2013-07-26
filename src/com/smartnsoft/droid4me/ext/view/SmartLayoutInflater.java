@@ -1,6 +1,23 @@
+/*
+ * (C) Copyright 2009-2013 Smart&Soft SAS (http://www.smartnsoft.com/) and contributors.
+ *
+ * The code hereby is the full property of Smart&Soft, SIREN 444 622 690.
+ * 34, boulevard des Italiens - 75009 - Paris - France
+ * contact@smartnsoft.com - 00 33 6 79 60 05 49
+ *
+ * You are not allowed to use the source code or the resulting binary code, nor to modify the source code, without prior permission of the owner.
+ * 
+ * This library is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * Contributors:
+ *     Smart&Soft - initial API and implementation
+ */
+
 package com.smartnsoft.droid4me.ext.view;
 
 import java.lang.reflect.Field;
+
+import org.xmlpull.v1.XmlPullParser;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -9,6 +26,7 @@ import android.os.Build.VERSION;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.smartnsoft.droid4me.log.Logger;
 import com.smartnsoft.droid4me.log.LoggerFactory;
@@ -22,6 +40,7 @@ import com.smartnsoft.droid4me.log.LoggerFactory;
  */
 public class SmartLayoutInflater
     extends LayoutInflater
+    implements LayoutInflater.Factory
 {
 
   protected final static Logger log = LoggerFactory.getInstance(SmartLayoutInflater.class);
@@ -139,49 +158,71 @@ public class SmartLayoutInflater
 
   private final OnViewInflatedListener onViewInflatedListener;
 
+  private Factory inheritedFactory;
+
   public SmartLayoutInflater(LayoutInflater original, Context newContext, OnViewInflatedListener onViewInflatedListener)
   {
     super(SmartLayoutInflater.stripLayoutFactories(original), newContext);
     SmartLayoutInflater.unstripLayoutFactories(original);
     this.onViewInflatedListener = onViewInflatedListener;
-
-    // If the factory is already set, an IllegalStateException exception will be thrown
-    if (getFactory() == null)
-    {
-      setFactory(new LayoutInflater.Factory()
-      {
-
-        @Override
-        public View onCreateView(String name, Context context, AttributeSet attrs)
-        {
-          if (name.indexOf('.') != -1)
-          {
-            try
-            {
-              final View view = createView(name, null, attrs);
-              if (view != null)
-              {
-                onCustomizeView(view, attrs);
-              }
-              return view;
-            }
-            catch (Exception exception)
-            {
-              // Does not matter, we let the LayoutInflater.onCreateView() and LayoutInflater.createView() handle that from the
-              // LayoutInflater.createViewFromTag() method
-            }
-          }
-          return null;
-        }
-
-      });
-    }
   }
 
   @Override
   public LayoutInflater cloneInContext(Context newContext)
   {
     return new SmartLayoutInflater(this, newContext, this.onViewInflatedListener);
+  }
+
+  @Override
+  public void setFactory(Factory factory)
+  {
+    if (factory == this)
+    {
+      super.setFactory(factory);
+    }
+    else
+    {
+      inheritedFactory = factory;
+    }
+  }
+
+  @Override
+  public View inflate(XmlPullParser parser, ViewGroup root, boolean attachToRoot)
+  {
+    // The inner LayoutInflater Factory is set lazily, because we want the FragmentActivity set it beforehand!
+    if (getFactory() == null)
+    {
+      // If the factory is already set, an IllegalStateException exception will be thrown, this is why we check this
+      setFactory(this);
+    }
+    return super.inflate(parser, root, attachToRoot);
+  }
+
+  @Override
+  public View onCreateView(String name, Context context, AttributeSet attrs)
+  {
+    if (name.indexOf('.') != -1)
+    {
+      try
+      {
+        final View view = createView(name, null, attrs);
+        if (view != null)
+        {
+          onCustomizeView(view, attrs);
+        }
+        return view;
+      }
+      catch (Exception exception)
+      {
+        // Does not matter, we let the LayoutInflater.onCreateView() and LayoutInflater.createView() handle that from the
+        // LayoutInflater.createViewFromTag() method
+      }
+    }
+    else if (inheritedFactory != null)
+    {
+      return inheritedFactory.onCreateView(name, context, attrs);
+    }
+    return null;
   }
 
   @Override
