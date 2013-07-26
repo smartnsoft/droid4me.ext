@@ -704,14 +704,18 @@ This Ant buildfile requires that you have included the following Ant library ext
   >
     <property
       name="jar.filePath"
-      location="/Users/edouardmercier/.m2/repository/org/madprod/freeboxmobilerudp/1.0.0/freeboxmobilerudp-1.0.0.jar"
+      location="/Users/edouardmercier/wok/eclipse/SmartSoft-workspace/CanalPlus-android/imported/freeboxmobilerudp/fr.canalplus.android.freeboxv6-v1.0.1.jar"
     />
     <taskdef
       name="jarjar"
       classname="com.tonicsystems.jarjar.JarJarTask"
       classpath="lib/jarjar-1.4.jar"
     />
-    <jarjar destfile="${temporary.directoryPath}/jarjared.jar">
+    <property
+      name="jarjared.filePath"
+      location="${temporary.directoryPath}/jarjared.jar"
+    />
+    <jarjar destfile="${jarjared.filePath}">
       <zipfileset src="${jar.filePath}"/>
       <rule
         pattern="org.madprod.freeboxmobilerudp.hid.**"
@@ -722,6 +726,28 @@ This Ant buildfile requires that you have included the following Ant library ext
         result="fr.canalplus.android.freeboxv6.@1"
       />
     </jarjar>
+    <property
+      name="unjar.directoryPath"
+      location="${temporary.directoryPath}/jarjared"
+    />
+    <delete dir="${unjar.directoryPath}"/>
+    <unzip
+      src="${jarjared.filePath}"
+      dest="${unjar.directoryPath}"
+    />
+    <delete includeemptydirs="true">
+      <fileset dir="${unjar.directoryPath}">
+        <and>
+          <size value="0"/>
+          <type type="dir"/>
+         </and>
+      </fileset>
+    </delete>
+    <delete file="${jarjared.filePath}"/>
+    <jar
+      basedir="${unjar.directoryPath}"
+      destfile="${jarjared.filePath}"
+    />
   </target>
 
 </project>
