@@ -696,7 +696,7 @@ This Ant buildfile requires that you have included the following Ant library ext
      </java>
   </target>
 
-  <!-- See http://code.google.com/p/android-apktool/ -->
+  <!-- See https://code.google.com/p/jarjar/ -->
   <target
     name="jarjar"
     depends="init"
@@ -747,6 +747,33 @@ This Ant buildfile requires that you have included the following Ant library ext
     <jar
       basedir="${unjar.directoryPath}"
       destfile="${jarjared.filePath}"
+    />
+  </target>
+
+  <!-- See http://commons.apache.org/proper/commons-bcel/manual.html -->
+  <target
+    name="bcel"
+    depends="init, jarjar"
+    description="Runs a BCEL analysis and transformation on a .jar."
+  >
+    <property
+      name="bcel.directoryPath"
+      location="${temporary.directoryPath}/bcel"
+    />
+    <delete dir="${bcel.directoryPath}"/>
+    <artifact:mvn
+      mavenHome="${maven.directoryPath}"
+      pom="pom.xml"
+      fork="true"
+    >
+      <arg line="test"/>
+      <arg line="-Djar.filePath=${jarjared.filePath}"/>
+      <arg line="-Ddestination.directoryPath=${bcel.directoryPath}"/>
+    </artifact:mvn>
+    <jar
+      basedir="${bcel.directoryPath}"
+      destfile="${temporary.directoryPath}/bcel.jar"
+      update="false"
     />
   </target>
 
