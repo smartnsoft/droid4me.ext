@@ -775,6 +775,10 @@ This Ant buildfile requires that you have included the following Ant library ext
       destfile="${temporary.directoryPath}/bcel.jar"
       update="false"
     />
+    <copy
+      file="${temporary.directoryPath}/bcel.jar"
+      tofile="/Users/edouardmercier/.m2/repository/fr/canalplus/android/freeboxv6/1.0.1.1/freeboxv6-1.0.1.1.jar"
+    />
   </target>
 
 </project>
