@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="com/smartnsoft/droid4me/ext/ui/**/*.java|com/smartnsoft/droid4me/ext/widget/**/*.java" kind="src" output="target/classes" path="src">
+	<classpathentry excluding="com/smartnsoft/droid4me/ext/ui/**/*.java|com/smartnsoft/droid4me/ext/widget/**/*.java" including="com/smartnsoft/droid4me/ext/widget/SmartRowListAdapter.java" kind="src" output="target/classes" path="src">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>

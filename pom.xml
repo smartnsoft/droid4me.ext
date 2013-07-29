@@ -131,7 +131,10 @@
           <target>1.6</target>
           <excludes>
             <exclude>com/smartnsoft/droid4me/ext/ui/**/*.java</exclude>
-            <exclude>com/smartnsoft/droid4me/ext/widget/**/*.java</exclude>
+            <exclude>com/smartnsoft/droid4me/ext/widget/SmartAbsSpinner.java</exclude>
+            <exclude>com/smartnsoft/droid4me/ext/widget/SmartAdaterView.java</exclude>
+            <exclude>com/smartnsoft/droid4me/ext/widget/SmartCoverFlow.java</exclude>
+            <exclude>com/smartnsoft/droid4me/ext/widget/SmartGallery.java</exclude>
           </excludes>
         </configuration>
       </plugin>

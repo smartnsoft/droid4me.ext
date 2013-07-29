@@ -84,6 +84,7 @@ public final class BcelTest
   }
 
   @Test
+  @Ignore
   public void test()
       throws IOException, ClassNotFoundException
   {
@@ -312,6 +313,7 @@ public final class BcelTest
   }
 
   @Test
+  @Ignore
   public void bcelifier()
       throws ClassNotFoundException, FileNotFoundException
   {
