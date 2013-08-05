@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="com/smartnsoft/droid4me/ext/ui/**/*.java|com/smartnsoft/droid4me/ext/widget/**/*.java" including="com/smartnsoft/droid4me/ext/widget/SmartRowListAdapter.java" kind="src" output="target/classes" path="src">
+	<classpathentry excluding="com/smartnsoft/droid4me/ext/ui/**/*.java|com/smartnsoft/droid4me/ext/widget/SmartAbsSpinner.java|com/smartnsoft/droid4me/ext/widget/SmartAdaterView.java|com/smartnsoft/droid4me/ext/widget/SmartCoverFlow.java|com/smartnsoft/droid4me/ext/widget/SmartGallery.java" kind="src" output="target/classes" path="src">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="src" output="target/test-classes" path="test">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="libs/com.android.internals.R.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
 		<attributes>
