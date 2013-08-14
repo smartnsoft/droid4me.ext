@@ -186,7 +186,7 @@ public class SmartRowListAdapter<ViewClass extends View>
 
   }
 
-  public final static class RowLinearLayout
+  private final static class RowLinearLayout
       extends LinearLayout
   {
 
@@ -201,7 +201,10 @@ public class SmartRowListAdapter<ViewClass extends View>
     public void requestLayout()
     {
       super.requestLayout();
-      System.out.println("requestLayout() -> " + this.toString());
+      if (SmartRowListAdapter.LOG_DEBUG_ENABLED == true && log.isDebugEnabled())
+      {
+        log.debug("'requestLayout()' invoked on '" + this.toString() + "'");
+      }
     }
 
     public boolean isLayoutRequested()
@@ -271,6 +274,8 @@ public class SmartRowListAdapter<ViewClass extends View>
    */
   @SuppressLint("UseSparseArrays")
   private final SparseArray<Integer> types = new SparseArray<Integer>();
+
+  public static boolean LOG_DEBUG_ENABLED = false;
 
   public static int getRow(int position, ColumnsIndicator columnsIndicator, AtomicInteger lastRowPosition, AtomicInteger lastRowColumnsCount)
   {
