@@ -128,17 +128,18 @@ public class SmartRowListAdapter<ViewClass extends View>
   private final static class RowBusinessViewAttributes<BusinessObjectClass>
   {
 
-    private final LinearLayout linearLayout;
+    private final RowLinearLayout linearLayout;
 
     private View[] views;
 
-    public RowBusinessViewAttributes(LinearLayout linearLayout)
+    public RowBusinessViewAttributes(RowLinearLayout linearLayout)
     {
       this.linearLayout = linearLayout;
     }
 
-    public void update(final Activity activity, List<BusinessViewWrapper<BusinessObjectClass>> businessObject, int horizontalPadding)
+    public void update(final Activity activity, List<BusinessViewWrapper<BusinessObjectClass>> businessObject, int horizontalPadding, int position)
     {
+      linearLayout.position = position;
       if (horizontalPadding > 0)
       {
         linearLayout.setPadding(horizontalPadding, 0, horizontalPadding, 0);
@@ -190,20 +191,26 @@ public class SmartRowListAdapter<ViewClass extends View>
       extends LinearLayout
   {
 
+    private static int requestLayoutCount = 0;
+
+    public int position;
+
     public Boolean isLayoutRequested;
 
-    public RowLinearLayout(Context context)
+    public RowLinearLayout(Context context, int position)
     {
       super(context);
+      this.position = position;
     }
 
     @Override
     public void requestLayout()
     {
+      RowLinearLayout.requestLayoutCount++;
       super.requestLayout();
       if (SmartRowListAdapter.LOG_DEBUG_ENABLED == true && log.isDebugEnabled())
       {
-        log.debug("'requestLayout()' invoked on '" + this.toString() + "'");
+        log.debug("[" + RowLinearLayout.requestLayoutCount + ", position=" + position + "] 'requestLayout()' invoked on '" + this.toString() + "'");
       }
     }
 
@@ -226,11 +233,14 @@ public class SmartRowListAdapter<ViewClass extends View>
 
     private final int horizontalPadding;
 
-    protected RowBusinessViewWrapper(List<BusinessViewWrapper<BusinessObjectClass>> businessObject, int type, int horizontalPadding)
+    private final int position;
+
+    protected RowBusinessViewWrapper(List<BusinessViewWrapper<BusinessObjectClass>> businessObject, int type, int horizontalPadding, int position)
     {
       super(businessObject);
       this.type = type;
       this.horizontalPadding = horizontalPadding;
+      this.position = position;
     }
 
     @Override
@@ -242,7 +252,7 @@ public class SmartRowListAdapter<ViewClass extends View>
     @Override
     protected View createNewView(Activity activity, ViewGroup parent, List<BusinessViewWrapper<BusinessObjectClass>> businessObject)
     {
-      final LinearLayout linearLayout = new RowLinearLayout(activity.getApplicationContext());
+      final LinearLayout linearLayout = new RowLinearLayout(activity.getApplicationContext(), position);
       linearLayout.setOrientation(LinearLayout.HORIZONTAL);
       return linearLayout;
     }
@@ -250,14 +260,14 @@ public class SmartRowListAdapter<ViewClass extends View>
     @Override
     protected Object extractNewViewAttributes(Activity activity, View view, List<BusinessViewWrapper<BusinessObjectClass>> businessObject)
     {
-      return new RowBusinessViewAttributes<BusinessObjectClass>((LinearLayout) view);
+      return new RowBusinessViewAttributes<BusinessObjectClass>((RowLinearLayout) view);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected void updateView(Activity activity, Object viewAttributes, View view, List<BusinessViewWrapper<BusinessObjectClass>> businessObject, int position)
     {
-      ((RowBusinessViewAttributes<BusinessObjectClass>) viewAttributes).update(activity, businessObject, horizontalPadding);
+      ((RowBusinessViewAttributes<BusinessObjectClass>) viewAttributes).update(activity, businessObject, horizontalPadding, position);
     }
 
   }
@@ -364,7 +374,8 @@ public class SmartRowListAdapter<ViewClass extends View>
         }
         types.put(totalType, canonicalType);
       }
-      conversiondWrappers.add(getRowBusinessViewWrapper(rowWrappers, canonicalType, columnsIndicator.getHorizontalPaddingForRow(row)));
+      conversiondWrappers.add(getRowBusinessViewWrapper(rowWrappers, canonicalType, columnsIndicator.getHorizontalPaddingForRow(row),
+          conversiondWrappers.size()));
       if (index >= wrappers.size())
       {
         break;
@@ -376,9 +387,10 @@ public class SmartRowListAdapter<ViewClass extends View>
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  protected RowBusinessViewWrapper<?> getRowBusinessViewWrapper(List<BusinessViewWrapper<?>> rowWrappers, Integer canonicalType, int horizontalPadding)
+  protected RowBusinessViewWrapper<?> getRowBusinessViewWrapper(List<BusinessViewWrapper<?>> rowWrappers, Integer canonicalType, int horizontalPadding,
+      int position)
   {
-    return new RowBusinessViewWrapper(rowWrappers, canonicalType, horizontalPadding);
+    return new RowBusinessViewWrapper(rowWrappers, canonicalType, horizontalPadding, position);
   }
 
   public BusinessViewWrapper<?> createEmptyWrapper(int viewType)
