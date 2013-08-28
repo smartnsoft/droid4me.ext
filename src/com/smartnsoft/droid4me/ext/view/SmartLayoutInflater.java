@@ -43,6 +43,8 @@ public class SmartLayoutInflater
     implements LayoutInflater.Factory
 {
 
+  public static boolean DEBUG_LOG_ENABLED = false;
+
   protected final static Logger log = LoggerFactory.getInstance(SmartLayoutInflater.class);
 
   public static final ThreadLocal<Factory> factoryThreadLocal = new ThreadLocal<Factory>();
@@ -195,7 +197,18 @@ public class SmartLayoutInflater
       // If the factory is already set, an IllegalStateException exception will be thrown, this is why we check this
       setFactory(this);
     }
-    return super.inflate(parser, root, attachToRoot);
+    final long start = System.currentTimeMillis();
+    final View view = super.inflate(parser, root, attachToRoot);
+    if (SmartLayoutInflater.DEBUG_LOG_ENABLED)
+    {
+      final long durationInMilliseconds = System.currentTimeMillis() - start;
+      log.debug("Inflated a view in " + durationInMilliseconds + " ms.");
+      if (durationInMilliseconds >= 100)
+      {
+        log.warn("Expensive view inflation!");
+      }
+    }
+    return view;
   }
 
   @Override

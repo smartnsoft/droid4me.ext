@@ -208,7 +208,7 @@ public class SmartRowListAdapter<ViewClass extends View>
     {
       RowLinearLayout.requestLayoutCount++;
       super.requestLayout();
-      if (SmartRowListAdapter.LOG_DEBUG_ENABLED == true && log.isDebugEnabled())
+      if (SmartRowListAdapter.DEBUG_LOG_ENABLED == true && log.isDebugEnabled())
       {
         log.debug("[" + RowLinearLayout.requestLayoutCount + ", position=" + position + "] 'requestLayout()' invoked on '" + this.toString() + "'");
       }
@@ -285,7 +285,7 @@ public class SmartRowListAdapter<ViewClass extends View>
   @SuppressLint("UseSparseArrays")
   private final SparseArray<Integer> types = new SparseArray<Integer>();
 
-  public static boolean LOG_DEBUG_ENABLED = false;
+  public static boolean DEBUG_LOG_ENABLED = false;
 
   public static int getRow(int position, ColumnsIndicator columnsIndicator, AtomicInteger lastRowPosition, AtomicInteger lastRowColumnsCount)
   {
