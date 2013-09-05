@@ -142,7 +142,17 @@ public class SmartRowListAdapter<ViewClass extends View>
       linearLayout.position = position;
       if (horizontalPadding > 0)
       {
-        linearLayout.setPadding(horizontalPadding, 0, horizontalPadding, 0);
+        if (linearLayout.getPaddingLeft() != horizontalPadding || linearLayout.getPaddingRight() != horizontalPadding)
+        {
+          linearLayout.setPadding(horizontalPadding, 0, horizontalPadding, 0);
+        }
+      }
+      else
+      {
+        if (linearLayout.getPaddingLeft() != 0 || linearLayout.getPaddingRight() != 0)
+        {
+          linearLayout.setPadding(0, 0, 0, 0);
+        }
       }
       if (views == null)
       {
@@ -172,14 +182,15 @@ public class SmartRowListAdapter<ViewClass extends View>
       for (int index = 0; index < views.length; index++)
       {
         final BusinessViewWrapper<BusinessObjectClass> wrapper = businessObject.get(index);
-        wrapper.updateView(activity, views[index], index);
+        final View theView = views[index];
+        wrapper.updateView(activity, theView, index);
         final int finalIndex = index;
-        views[index].setOnClickListener(new View.OnClickListener()
+        theView.setOnClickListener(new View.OnClickListener()
         {
           @Override
           public void onClick(View view)
           {
-            wrapper.onObjectEvent(activity, view, ObjectEvent.Clicked, finalIndex);
+            wrapper.onObjectEvent(activity, theView, ObjectEvent.Clicked, finalIndex);
           }
         });
       }

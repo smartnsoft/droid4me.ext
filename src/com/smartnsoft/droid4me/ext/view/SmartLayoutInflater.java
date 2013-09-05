@@ -203,7 +203,7 @@ public class SmartLayoutInflater
     {
       final long durationInMilliseconds = System.currentTimeMillis() - start;
       log.debug("Inflated a view in " + durationInMilliseconds + " ms.");
-      if (durationInMilliseconds >= 100)
+      if (durationInMilliseconds >= 30)
       {
         log.warn("Expensive view inflation!");
       }
