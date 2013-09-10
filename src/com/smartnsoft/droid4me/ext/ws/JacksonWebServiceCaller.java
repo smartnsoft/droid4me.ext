@@ -47,6 +47,7 @@ import org.apache.http.protocol.HTTP;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -311,7 +312,7 @@ public abstract class JacksonWebServiceCaller
   public final <ContentType> ContentType deserializeJson(InputStream inputStream, Class<?> theClass)
       throws JacksonParsingException
   {
-    return (ContentType) deserializeJson(inputStream, null, theClass);
+    return (ContentType) deserializeJson(inputStream, null, theClass, null);
   }
 
   // This is done this way, because of a compilation issue on Linux (see
@@ -320,11 +321,20 @@ public abstract class JacksonWebServiceCaller
   public final <ContentType> ContentType deserializeJson(InputStream inputStream, TypeReference<?> typeReference)
       throws JacksonParsingException
   {
-    return (ContentType) deserializeJson(inputStream, typeReference, null);
+    return (ContentType) deserializeJson(inputStream, typeReference, null, null);
+  }
+
+  // This is done this way, because of a compilation issue on Linux (see
+  // http://stackoverflow.com/questions/5666027/why-does-the-compiler-state-no-unique-maximal-instance-exists)
+  @SuppressWarnings("unchecked")
+  public final <ContentType> ContentType deserializeJson(InputStream inputStream, JavaType javaType)
+      throws JacksonParsingException
+  {
+    return (ContentType) deserializeJson(inputStream, null, null, javaType);
   }
 
   @SuppressWarnings("unchecked")
-  protected <ContentType> ContentType deserializeJson(InputStream inputStream, TypeReference<?> typeReference, Class<?> theClass)
+  protected <ContentType> ContentType deserializeJson(InputStream inputStream, TypeReference<?> typeReference, Class<?> theClass, JavaType javaType)
       throws JacksonParsingException
   {
     prepareObjectMapper();
@@ -333,6 +343,10 @@ public abstract class JacksonWebServiceCaller
       if (theClass != null)
       {
         return (ContentType) objectMapper.readValue(inputStream, theClass);
+      }
+      else if (javaType != null)
+      {
+        return (ContentType) objectMapper.readValue(inputStream, javaType);
       }
       else
       {
