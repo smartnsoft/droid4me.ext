@@ -288,8 +288,8 @@ public abstract class JacksonWebServiceCaller
   public final <ContentType> String serializeJson(ContentType businessObject)
       throws JsonProcessingException
   {
-    final String jsonString;
-    jsonString = objectMapper.writeValueAsString(businessObject);
+    prepareObjectMapper();
+    final String jsonString = objectMapper.writeValueAsString(businessObject);
     if (log.isDebugEnabled())
     {
       log.debug("Converted the object with class name '" + businessObject.getClass().getSimpleName() + "' to the JSON string '" + jsonString + "'");
