@@ -185,14 +185,22 @@ public class SmartRowListAdapter<ViewClass extends View>
         final View theView = views[index];
         wrapper.updateView(activity, theView, index);
         final int finalIndex = index;
-        theView.setOnClickListener(new View.OnClickListener()
+        if (wrapper.isEnabled() == true)
         {
-          @Override
-          public void onClick(View view)
+          theView.setOnClickListener(new View.OnClickListener()
           {
-            wrapper.onObjectEvent(activity, theView, ObjectEvent.Clicked, finalIndex);
-          }
-        });
+            @Override
+            public void onClick(View view)
+            {
+              wrapper.onObjectEvent(activity, theView, ObjectEvent.Clicked, finalIndex);
+            }
+          });
+          theView.setEnabled(true);
+        }
+        else
+        {
+          theView.setEnabled(false);
+        }
       }
     }
 
