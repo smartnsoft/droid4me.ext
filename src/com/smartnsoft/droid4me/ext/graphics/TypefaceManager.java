@@ -11,6 +11,10 @@ import com.smartnsoft.droid4me.ext.graphics.TypefaceManager.Typefaceable;
 /**
  * A helper class for managing Android fonts.
  * 
+ * <p>
+ * The approach is more elegant than the one described <a href="http://sriramramani.wordpress.com/2012/11/29/custom-fonts/#comments">here</a>.
+ * </p>
+ * 
  * @author Édouard Mercier
  * @since 2013.07.22
  * 
