@@ -163,7 +163,7 @@ public class SmartRowListAdapter<ViewClass extends View>
           final View view = wrapper.getNewView(linearLayout, activity);
           views[index] = view;
           // All cells will have the same width
-          final ViewGroup.LayoutParams viewLayoutParams = null;
+          final ViewGroup.LayoutParams viewLayoutParams = view.getLayoutParams();
           final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, viewLayoutParams != null ? viewLayoutParams.height
               : LayoutParams.WRAP_CONTENT, 1);
           views[index].setFocusable(true);
