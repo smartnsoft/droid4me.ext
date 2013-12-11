@@ -233,6 +233,7 @@ public class SmartRowListAdapter<ViewClass extends View>
       }
     }
 
+    @Override
     public boolean isLayoutRequested()
     {
       if (isLayoutRequested != null)
@@ -358,48 +359,51 @@ public class SmartRowListAdapter<ViewClass extends View>
   public List<BusinessViewWrapper<?>> convertWrappers(List<? extends BusinessViewWrapper<?>> wrappers, ColumnsIndicator columnsIndicator)
   {
     final List<BusinessViewWrapper<?>> conversiondWrappers = new ArrayList<BusinessViewWrapper<?>>();
-    int index = 0;
-    int row = 0;
-    while (true)
+    if (wrappers != null && wrappers.size() >= 1)
     {
-      final List<BusinessViewWrapper<?>> rowWrappers = new ArrayList<BusinessViewWrapper<?>>();
-      int totalType = 0;
-      final int columnsCount = columnsIndicator.getColumnsCount(row);
-      for (int column = 0; column < columnsCount; column++)
+      int index = 0;
+      int row = 0;
+      while (true)
       {
-        final int type;
+        final List<BusinessViewWrapper<?>> rowWrappers = new ArrayList<BusinessViewWrapper<?>>();
+        int totalType = 0;
+        final int columnsCount = columnsIndicator.getColumnsCount(row);
+        for (int column = 0; column < columnsCount; column++)
+        {
+          final int type;
+          if (index >= wrappers.size())
+          {
+            final EmptyWrapper wrapper = new EmptyWrapper(0);
+            rowWrappers.add(wrapper);
+            type = wrapper.getType(column);
+          }
+          else
+          {
+            final BusinessViewWrapper<?> wrapper = wrappers.get(index);
+            type = wrapper.getType(column) + 1;
+            rowWrappers.add(wrapper);
+          }
+          totalType += Math.max(1, column * SmartRowListAdapter.maximumDifferentTypes) * type;
+          index++;
+        }
+        Integer canonicalType = types.get(totalType);
+        if (canonicalType == null)
+        {
+          canonicalType = types.size();
+          if (log.isDebugEnabled())
+          {
+            log.debug("Adding the view type " + canonicalType + " corresponding to the computed total type value " + totalType);
+          }
+          types.put(totalType, canonicalType);
+        }
+        conversiondWrappers.add(getRowBusinessViewWrapper(rowWrappers, canonicalType, columnsIndicator.getHorizontalPaddingForRow(row),
+            conversiondWrappers.size()));
         if (index >= wrappers.size())
         {
-          final EmptyWrapper wrapper = new EmptyWrapper(0);
-          rowWrappers.add(wrapper);
-          type = wrapper.getType(column);
+          break;
         }
-        else
-        {
-          final BusinessViewWrapper<?> wrapper = wrappers.get(index);
-          type = wrapper.getType(column) + 1;
-          rowWrappers.add(wrapper);
-        }
-        totalType += Math.max(1, column * SmartRowListAdapter.maximumDifferentTypes) * type;
-        index++;
+        row++;
       }
-      Integer canonicalType = (Integer) types.get(totalType);
-      if (canonicalType == null)
-      {
-        canonicalType = types.size();
-        if (log.isDebugEnabled())
-        {
-          log.debug("Adding the view type " + canonicalType + " corresponding to the computed total type value " + totalType);
-        }
-        types.put(totalType, canonicalType);
-      }
-      conversiondWrappers.add(getRowBusinessViewWrapper(rowWrappers, canonicalType, columnsIndicator.getHorizontalPaddingForRow(row),
-          conversiondWrappers.size()));
-      if (index >= wrappers.size())
-      {
-        break;
-      }
-      row++;
     }
     // viewTypeCount.set(types.size());
     return conversiondWrappers;
