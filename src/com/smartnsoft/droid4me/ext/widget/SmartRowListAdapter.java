@@ -327,7 +327,6 @@ public class SmartRowListAdapter<ViewClass extends View>
   }
 
   /**
-   * @param view
    * @return the individual tags of the provided {@code view} children, which have been wrapped
    */
   public static List<Object> getTags(View view)
@@ -340,6 +339,10 @@ public class SmartRowListAdapter<ViewClass extends View>
       {
         tags.add(viewGroup.getChildAt(index).getTag());
       }
+    }
+    else
+    {
+      tags.add(view.getTag());
     }
     return tags;
   }
