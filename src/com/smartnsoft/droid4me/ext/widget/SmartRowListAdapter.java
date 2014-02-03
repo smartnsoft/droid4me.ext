@@ -144,6 +144,7 @@ public class SmartRowListAdapter<ViewClass extends View>
       {
         if (linearLayout.getPaddingLeft() != horizontalPadding || linearLayout.getPaddingRight() != horizontalPadding)
         {
+          // We only set the padding provided it is not currently set to the expected value
           linearLayout.setPadding(horizontalPadding, 0, horizontalPadding, 0);
         }
       }
@@ -151,6 +152,7 @@ public class SmartRowListAdapter<ViewClass extends View>
       {
         if (linearLayout.getPaddingLeft() != 0 || linearLayout.getPaddingRight() != 0)
         {
+          // We only set the padding provided it is not currently set to the expected value
           linearLayout.setPadding(0, 0, 0, 0);
         }
       }
@@ -179,12 +181,17 @@ public class SmartRowListAdapter<ViewClass extends View>
           log.error("Roger, we've got a problem with the SmartRowListAdapter!");
         }
       }
-      for (int index = 0; index < views.length; index++)
+      for (int column = 0; column < views.length; column++)
       {
-        final BusinessViewWrapper<BusinessObjectClass> wrapper = businessObject.get(index);
-        final View theView = views[index];
-        wrapper.updateView(activity, theView, index);
-        final int finalIndex = index;
+        final BusinessViewWrapper<BusinessObjectClass> wrapper = businessObject.get(column);
+        final View theView = views[column];
+        // if (SmartRowListAdapter.DEBUG_LOG_ENABLED == true && log.isDebugEnabled())
+        // {
+        // log.debug("Updating the cell at position (" + position + "x" + column + ")");
+        // }
+        wrapper.updateView(activity, theView, column);
+        final int finalIndex = column;
+        final boolean isEnabled;
         if (wrapper.isEnabled() == true)
         {
           theView.setOnClickListener(new View.OnClickListener()
@@ -195,11 +202,17 @@ public class SmartRowListAdapter<ViewClass extends View>
               wrapper.onObjectEvent(activity, theView, ObjectEvent.Clicked, finalIndex);
             }
           });
-          theView.setEnabled(true);
+          isEnabled = true;
         }
         else
         {
-          theView.setEnabled(false);
+          theView.setOnClickListener(null);
+          isEnabled = false;
+        }
+        if (theView.isEnabled() != isEnabled)
+        {
+          // We only change the "enabled" status provided the current value is not the right one
+          theView.setEnabled(isEnabled);
         }
       }
     }
@@ -376,7 +389,7 @@ public class SmartRowListAdapter<ViewClass extends View>
           final int type;
           if (index >= wrappers.size())
           {
-            final EmptyWrapper wrapper = new EmptyWrapper(0);
+            final BusinessViewWrapper<?> wrapper = createEmptyWrapper(0);
             rowWrappers.add(wrapper);
             type = wrapper.getType(column);
           }
@@ -395,12 +408,12 @@ public class SmartRowListAdapter<ViewClass extends View>
           canonicalType = types.size();
           if (log.isDebugEnabled())
           {
-            log.debug("Adding the view type " + canonicalType + " corresponding to the computed total type value " + totalType);
+            log.debug("Adding the view type " + canonicalType + " corresponding to the computed total type value " + totalType + " at row " + row + " with " + columnsCount + " column(s)");
           }
           types.put(totalType, canonicalType);
         }
         conversiondWrappers.add(getRowBusinessViewWrapper(rowWrappers, canonicalType, columnsIndicator.getHorizontalPaddingForRow(row),
-            conversiondWrappers.size()));
+            conversiondWrappers.size() - 1));
         if (index >= wrappers.size())
         {
           break;
@@ -408,7 +421,6 @@ public class SmartRowListAdapter<ViewClass extends View>
         row++;
       }
     }
-    // viewTypeCount.set(types.size());
     return conversiondWrappers;
   }
 

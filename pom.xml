@@ -15,7 +15,7 @@
 
   <artifactId>droid4me.ext</artifactId>
   <name>droid4me Extended</name>
-  <version>2.2.8</version>
+  <version>2.2.9-SNAPSHOT</version>
   <packaging>jar</packaging>
   <description>droid4me.ext is an extension of the droid4me framework.</description>
   <url>http://code.google.com/p/droid4me</url>
