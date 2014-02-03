@@ -139,6 +139,10 @@ public class SmartRowListAdapter<ViewClass extends View>
 
     public void update(final Activity activity, List<BusinessViewWrapper<BusinessObjectClass>> businessObject, int horizontalPadding, int position)
     {
+      // if (SmartRowListAdapter.DEBUG_LOG_ENABLED == true && log.isDebugEnabled())
+      // {
+      // log.debug("Updating the row at position " + position + " composed of " + businessObject.size() + " column(s)");
+      // }
       linearLayout.position = position;
       if (horizontalPadding > 0)
       {
