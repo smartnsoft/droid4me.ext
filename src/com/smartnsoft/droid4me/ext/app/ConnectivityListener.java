@@ -39,7 +39,7 @@ import com.smartnsoft.droid4me.support.v4.content.LocalBroadcastManager;
  * @since 2012.04.04
  */
 public abstract class ConnectivityListener
-    implements AppPublics.BroadcastListener, ActivityController.Interceptor
+    implements ActivityController.Interceptor
 {
 
   protected final static Logger log = LoggerFactory.getInstance(ConnectivityListener.class);
@@ -56,8 +56,6 @@ public abstract class ConnectivityListener
 
   private final Context context;
 
-  private final AppPublics.BroadcastListener[] networkBroadcastListener;
-
   private boolean hasConnectivity = true;
 
   /**
@@ -70,7 +68,6 @@ public abstract class ConnectivityListener
   public ConnectivityListener(Context context)
   {
     this.context = context;
-    networkBroadcastListener = new AppPublics.BroadcastListener[] { this };
     // We immediately extract the connectivity status
     final NetworkInfo activeNetworkInfo = getActiveNetworkInfo();
     if (activeNetworkInfo == null || activeNetworkInfo.isConnected() == false)
@@ -100,42 +97,6 @@ public abstract class ConnectivityListener
     return ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
   }
 
-  @Override
-  @UseNativeBroadcast
-  public IntentFilter getIntentFilter()
-  {
-    return new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-  }
-
-  @Override
-  public void onReceive(Intent intent)
-  {
-    // There is only one registered Intent action, hence, we do not need any filtering test
-    final boolean previousConnectivity = hasConnectivity;
-    hasConnectivity = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-    if (previousConnectivity != hasConnectivity)
-    {
-      // With this filter, only one broadcast listener will handle the event
-      if (log.isInfoEnabled())
-      {
-        log.info("Received an Internet connectivity change event: the connection is now " + (hasConnectivity == false ? "off" : "on"));
-      }
-      // We notify the application regarding this connectivity change event
-      LocalBroadcastManager.getInstance(context).sendBroadcast(
-          new Intent(ConnectivityListener.CONNECTIVITY_CHANGED_ACTION).putExtra(ConnectivityListener.EXTRA_HAS_CONNECTIVITY, hasConnectivity));
-
-      notifyServices(hasConnectivity);
-    }
-  }
-
-  /**
-   * @return an array made of a single {@link BroadcastListener}, which is the current instance
-   */
-  public BroadcastListener[] getBroadcastListeners()
-  {
-    return networkBroadcastListener;
-  }
-
   /**
    * This method should be invoked during the {@link ActivityController.Interceptor#onLifeCycleEvent(Activity, Object, InterceptorEvent)} method, and
    * it will handle everything.
@@ -147,11 +108,8 @@ public abstract class ConnectivityListener
     {
       // We listen to the network connection potential issues: we do not want child activities to also register for the connectivity change events
       registerBroadcastListenerOnCreate(activity, component);
-    }
-    else if (event == ActivityController.Interceptor.InterceptorEvent.onResume)
-    {
       // We transmit the connectivity status
-      registerBroadcastListenerOnResume(activity, component);
+      updateActivityOnCreate(activity, component);
     }
   }
 
@@ -173,13 +131,46 @@ public abstract class ConnectivityListener
    * @param component
    *          when not-null, the {@link android.app.Fragment} in which the {@link android.app.Fragment#onCreate()} method is invoked
    */
-  public void registerBroadcastListenerOnCreate(Activity activity, Object component)
+  public void registerBroadcastListenerOnCreate(final Activity activity, final Object component)
   {
     // We listen to the network connection potential issues: we do not want child activities to also register for the connectivity change events
     if (component == null && activity.getParent() == null && activity instanceof Smarted<?>)
     {
       final Smarted<?> smartedActivity = (Smarted<?>) activity;
-      smartedActivity.registerBroadcastListeners(getBroadcastListeners());
+      final BroadcastListener broadcastListener = new BroadcastListener()
+      {
+
+        @UseNativeBroadcast
+        @Override
+        public IntentFilter getIntentFilter()
+        {
+          return new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        }
+
+        @Override
+        public void onReceive(Intent intent)
+        {
+          // There is only one registered Intent action, hence, we do not need any filtering test
+          final boolean previousConnectivity = hasConnectivity;
+          hasConnectivity = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false) == false;
+          if (previousConnectivity != hasConnectivity)
+          {
+            // With this filter, only one broadcast listener will handle the event
+            if (log.isInfoEnabled())
+            {
+              log.info("Received an Internet connectivity change event: the connection is now " + (hasConnectivity == false ? "off" : "on"));
+            }
+            // We notify the application regarding this connectivity change event
+            LocalBroadcastManager.getInstance(context).sendBroadcast(
+                new Intent(com.smartnsoft.droid4me.ext.app.ConnectivityListener.CONNECTIVITY_CHANGED_ACTION).putExtra(
+                    com.smartnsoft.droid4me.ext.app.ConnectivityListener.EXTRA_HAS_CONNECTIVITY, hasConnectivity));
+
+            notifyServices(hasConnectivity);
+            updateActivityOnCreate(activity, component);
+          }
+        }
+      };
+      smartedActivity.registerBroadcastListeners(new AppPublics.BroadcastListener[] { broadcastListener });
     }
   }
 
@@ -200,7 +191,7 @@ public abstract class ConnectivityListener
    * @param component
    *          when not-null, the {@link android.app.Fragment} in which the {@link android.app.Fragment#onResume()} method is invoked
    */
-  public void registerBroadcastListenerOnResume(Activity activity, Object component)
+  public void updateActivityOnCreate(Activity activity, Object component)
   {
     // We transmit the connectivity status
     if (component == null && activity.getParent() == null && activity instanceof Smarted<?>)
