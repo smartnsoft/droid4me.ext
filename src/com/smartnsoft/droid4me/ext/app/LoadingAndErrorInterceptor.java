@@ -399,14 +399,14 @@ public abstract class LoadingAndErrorInterceptor
 
     private final AtomicReference<BusinessObjectUnavailableException> issue = new AtomicReference<BusinessObjectUnavailableException>();
 
-    public final void onCreate(final ErrorAndRetryManagerProvider errorAndRetryAttributesProvider, Activity activity, final Smartable<?> smartedFragment,
+    public final void onCreate(final ErrorAndRetryManagerProvider errorAndRetryAttributesProvider, Activity activity, final Smartable<?> smartable,
         BusinessObjectUnavailableException issue, boolean handleLoading)
     {
       this.issue.set(issue);
       if (handleLoading == true)
       {
-        displayLoadingViewNextTime = smartedFragment.isFirstLifeCycle() == true;
-        final AppPublics.BroadcastListener loadingBroadcastListener = new LoadingBroadcastListener(activity, smartedFragment)
+        displayLoadingViewNextTime = smartable.isFirstLifeCycle() == true;
+        final AppPublics.BroadcastListener loadingBroadcastListener = new LoadingBroadcastListener(activity, smartable)
         {
           @Override
           protected void onLoading(boolean isLoading)
@@ -441,7 +441,7 @@ public abstract class LoadingAndErrorInterceptor
           }
         };
         final BroadcastListener[] broadcastListeners = { loadingBroadcastListener };
-        smartedFragment.registerBroadcastListeners(broadcastListeners);
+        smartable.registerBroadcastListeners(broadcastListeners);
       }
     }
 
@@ -475,9 +475,9 @@ public abstract class LoadingAndErrorInterceptor
       });
     }
 
-    public void showException(Activity activity, final Smartable<?> smartableFragment, Throwable throwable, Runnable onRetry)
+    public void showException(Activity activity, final Smartable<?> smartable, Throwable throwable, Runnable onRetry)
     {
-      loadingErrorAndRetryAttributes.showIssue(activity, smartableFragment, throwable, onRetry);
+      loadingErrorAndRetryAttributes.showIssue(activity, smartable, throwable, onRetry);
     }
 
     public final void reportBusinessObjectUnavailableException(BusinessObjectUnavailableException exception)
@@ -495,26 +495,35 @@ public abstract class LoadingAndErrorInterceptor
   @Override
   public void onLifeCycleEvent(final Activity activity, Object component, InterceptorEvent interceptorEvent)
   {
-    if (component instanceof Smartable<?>)
+    final Object actualComponent = component == null ? activity : component;
+    if (actualComponent instanceof Smartable<?>)
     {
-      // It's a Fragment
-      final Smartable<LoadingErrorAndRetryAggregateProvider> smartableFragment = (Smartable<LoadingErrorAndRetryAggregateProvider>) component;
+      // It's a Fragment or an Activity
+      final Smartable<LoadingErrorAndRetryAggregateProvider> smartable = (Smartable<LoadingErrorAndRetryAggregateProvider>) actualComponent;
 
       // We handle the loading, error and retry feature, but not with the DisableLoadingAndErrorInterceptor-annotated Fragments
-      final LoadingAndErrorAnnotation loadingAndErrorAnnotation = smartableFragment.getClass().getAnnotation(LoadingAndErrorAnnotation.class);
-      if (loadingAndErrorAnnotation != null && loadingAndErrorAnnotation.enabled() == true)
+      final LoadingAndErrorAnnotation loadingAndErrorAnnotation = smartable.getClass().getAnnotation(LoadingAndErrorAnnotation.class);
+      if (loadingAndErrorAnnotation != null && loadingAndErrorAnnotation.enabled() == true && (interceptorEvent == InterceptorEvent.onCreate || interceptorEvent == InterceptorEvent.onStart || interceptorEvent == InterceptorEvent.onPause))
       {
-        final LoadingErrorAndRetryAggregate aggregate = smartableFragment.getAggregate().getLoadingErrorAndRetryAggregate();
-        final BusinessObjectsUnavailableExceptionKeeper businessObjectsUnavailableExceptionKeeper = smartableFragment.getAggregate().getBusinessUnavailableExceptionKeeper();
+        final LoadingErrorAndRetryAggregate aggregate = smartable.getAggregate().getLoadingErrorAndRetryAggregate();
+        final BusinessObjectsUnavailableExceptionKeeper businessObjectsUnavailableExceptionKeeper = smartable.getAggregate().getBusinessUnavailableExceptionKeeper();
         if (interceptorEvent == InterceptorEvent.onCreate)
         {
-          aggregate.onCreate(errorAndRetryAttributesProvider, activity, smartableFragment, businessObjectsUnavailableExceptionKeeper.getException(),
+          aggregate.onCreate(errorAndRetryAttributesProvider, activity, smartable, businessObjectsUnavailableExceptionKeeper.getException(),
               loadingAndErrorAnnotation.loadingEnabled() == true);
         }
         else if (interceptorEvent == InterceptorEvent.onStart)
         {
-          final View view = component instanceof android.support.v4.app.Fragment ? ((android.support.v4.app.Fragment) component).getView()
-              : ((android.app.Fragment) component).getView();
+          final View view;
+          if (component != null)
+          {
+            view = component instanceof android.support.v4.app.Fragment ? ((android.support.v4.app.Fragment) component).getView()
+                : ((android.app.Fragment) component).getView();
+          }
+          else
+          {
+            view = activity.findViewById(android.R.id.content);
+          }
           aggregate.onStart(errorAndRetryAttributesProvider, view);
         }
         else if (interceptorEvent == InterceptorEvent.onPause)
