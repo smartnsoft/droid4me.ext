@@ -157,7 +157,7 @@ public abstract class LoadingAndErrorInterceptor
   public static interface ErrorAndRetryManager
   {
 
-    void showError(final Activity activity, Throwable throwable, boolean fromGuiThread, final Runnable onRetry);
+    void showError(final Activity activity, Throwable throwable, boolean fromGuiThread, final Runnable onCompletion);
 
     void hide();
 
@@ -247,7 +247,8 @@ public abstract class LoadingAndErrorInterceptor
           {
             final Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.fade_out);
             animation.setAnimationListener(animationListener);
-            // If the loading view contain tag and isHandlingError is false, we do not start the hide animation.
+            // If the loading view contains tag and that this tag implements the 'DoNotHideLoadingNextTime' interface, we do not start the hide
+            // animation
             if (loadingView.getTag() instanceof DoNotHideLoadingNextTime == false)
             {
               containerView.startAnimation(animation);
@@ -337,7 +338,7 @@ public abstract class LoadingAndErrorInterceptor
     /**
      * It is required to invoke that method from the UI thread!
      */
-    public void showIssue(Activity activity, final Smartable<?> smartable, Throwable throwable, final Runnable onRetry)
+    public void showIssue(Activity activity, final Smartable<?> smartable, Throwable throwable, final Runnable onCompletion)
     {
       // System.out.println("showError" + Thread.currentThread().getName());
       isHandlingError = true;
@@ -351,11 +352,10 @@ public abstract class LoadingAndErrorInterceptor
             isHandlingError = false;
             containerView.setVisibility(View.GONE);
             // System.out.println("showError containerView.setVisibility(View.GONE)" + Thread.currentThread().getName());
-            if (onRetry != null)
+            if (onCompletion != null)
             {
-              onRetry.run();
+              onCompletion.run();
             }
-            smartable.refreshBusinessObjectsAndDisplay(true, null, false);
           }
         });
         containerView.setVisibility(View.VISIBLE);
