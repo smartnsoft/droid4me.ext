@@ -275,6 +275,13 @@ public class SmartRowListAdapter<ViewClass extends View>
       return super.isLayoutRequested();
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+    {
+      // Overloaded in order to have the opportunity to set break points
+      super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
   }
 
   public static class RowBusinessViewWrapper<BusinessObjectClass>
