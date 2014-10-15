@@ -3,6 +3,7 @@ package com.smartnsoft.droid4me.ext.app;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
+
 import com.smartnsoft.droid4me.app.SmartApplication;
 
 /**
@@ -30,6 +31,7 @@ public abstract class FragmentAggregate<SmartApplicationClass extends SmartAppli
     }
   }
 
+  @SuppressWarnings("unchecked")
   @SuppressLint("NewApi")
   public SmartApplicationClass getApplication()
   {
@@ -43,6 +45,7 @@ public abstract class FragmentAggregate<SmartApplicationClass extends SmartAppli
     }
   }
 
+  @SuppressWarnings("unchecked")
   public SmartActivityClass getActivity()
   {
     if (fragment != null)

@@ -23,6 +23,7 @@ import com.smartnsoft.droid4me.log.LoggerFactory;
  * @author Édouard Mercier
  * @since 2009.05.29
  */
+@SuppressWarnings("deprecation")
 public final class SensorHelper
 {
 
@@ -33,6 +34,7 @@ public final class SensorHelper
 
   }
 
+  @SuppressWarnings("unused")
   private final static Logger log = LoggerFactory.getInstance(SensorHelper.class);
 
   public static double GRAVITY_FACTOR_THRESHOLD = 0.20d;
@@ -54,7 +56,6 @@ public final class SensorHelper
     enabled = (Settings.System.getString(context.getContentResolver(), Settings.System.ANDROID_ID) != null);
   }
 
-  @SuppressWarnings("deprecation")
   public void register(final SensorHelper.OnWristShakeListener onWristShakeListener)
   {
     if (enabled == false)
@@ -102,6 +103,7 @@ public final class SensorHelper
 
       private long lastSensorTakenIntoAccountTimestamp = 0;
 
+      @Override
       public void onSensorChanged(int sensor, float[] values)
       {
         if (sensor == SensorManager.SENSOR_ACCELEROMETER)
@@ -126,6 +128,7 @@ public final class SensorHelper
         }
       }
 
+      @Override
       public void onAccuracyChanged(int sensor, int accuracy)
       {
         // // We do not care

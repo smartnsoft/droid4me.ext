@@ -1,7 +1,9 @@
 package com.smartnsoft.droid4me.ext.app;
 
 import android.app.Activity;
+
 import com.smartnsoft.droid4me.app.ActivityController;
+import com.smartnsoft.droid4me.app.SmartApplication;
 import com.smartnsoft.droid4me.app.Smartable;
 import com.smartnsoft.droid4me.ext.app.ActivityContainerParameter.ActivityParameters;
 import com.smartnsoft.droid4me.ext.app.ActivityContainerParameter.FragmentParameters;
@@ -10,17 +12,16 @@ import com.smartnsoft.droid4me.ext.app.ActivityContainerParameter.FragmentParame
  * @author Jocelyn Girard, Willy Noel
  * @since 2014.04.08
  */
-public abstract class ActivityContainerInterceptor<ActivityAggregateClass extends ActivityContainerAggregate, FragmentAggregateClass extends FragmentAggregate>
+public abstract class ActivityContainerInterceptor<ActivityAggregateClass extends ActivityContainerAggregate, FragmentAggregateClass extends FragmentAggregate<? extends SmartApplication, ? extends Activity>>
     implements ActivityController.Interceptor
 {
 
   protected abstract int getActivityContentViewResourceId();
 
-  protected abstract ActivityAggregateClass instanciateActivityAggregate(Activity activity,
-      Smartable<ActivityAggregateClass> smartableActivity, ActivityParameters annotation);
+  protected abstract ActivityAggregateClass instanciateActivityAggregate(Activity activity, Smartable<ActivityAggregateClass> smartableActivity,
+      ActivityParameters annotation);
 
-  protected abstract FragmentAggregateClass instanciateFragmentAggregate(
-      Smartable<FragmentAggregateClass> smartableFragment);
+  protected abstract FragmentAggregateClass instanciateFragmentAggregate(Smartable<FragmentAggregateClass> smartableFragment);
 
   @SuppressWarnings("unchecked")
   @Override
