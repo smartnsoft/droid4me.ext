@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+
+import com.smartnsoft.droid4me.app.SmartApplication;
 import com.smartnsoft.droid4me.app.Smartable;
 import com.smartnsoft.droid4me.ext.app.ActivityContainerParameter.ActivityParameters;
 import com.smartnsoft.droid4me.ext.app.ActivityContainerParameter.LogoIconTitleBehavior;
@@ -16,10 +18,10 @@ import com.smartnsoft.droid4me.log.LoggerFactory;
  * @author Jocelyn Girard, Willy Noel
  * @since 2014.04.08
  */
-public abstract class ActivityContainerAggregate
+public abstract class ActivityAggregate<SmartApplicationClass extends SmartApplication>
 {
 
-  protected final static Logger log = LoggerFactory.getInstance(ActivityContainerAggregate.class);
+  protected final static Logger log = LoggerFactory.getInstance(ActivityAggregate.class);
 
   protected final Activity activity;
 
@@ -29,33 +31,49 @@ public abstract class ActivityContainerAggregate
 
   protected Fragment fragment;
 
-  public ActivityContainerAggregate(Activity activity, Smartable<?> smartable, ActivityParameters activityParameters)
+  public ActivityAggregate(Activity activity, Smartable<?> smartable, ActivityParameters activityParameters)
   {
     this.activity = activity;
     this.smartable = smartable;
     this.activityParameters = activityParameters;
   }
 
+  public SmartApplicationClass getApplication()
+  {
+    return (SmartApplicationClass) getApplication();
+  }
+
+  // TODO: think twice before exposing that method!
   public final Fragment getFragment()
   {
     return fragment;
   }
 
+  // TODO: think twice before exposing that method!
   public final ActivityParameters getActivityParameters()
   {
     return activityParameters;
   }
 
+  public void openParameterFragment()
+  {
+    if (activityParameters != null && activityParameters.fragmentClass() != null)
+    {
+      openFragment(activityParameters.fragmentClass());
+    }
+  }
+
   /**
-   * Allowed the user to specify the resource id for his container
-   *
+   * Allows to specify the resource identifier for its container.
+   * 
    * @return fragmentContainerIdentifier
    */
+  // TODO: turn this into an annotation
   protected abstract int getFragmentContainerIdentifier();
 
   /**
    * Open the specified fragment, the previous fragment is add to the back stack.
-   *
+   * 
    * @param fragmentClass
    */
   protected final void openFragment(Class<? extends Fragment> fragmentClass)
@@ -74,14 +92,6 @@ public abstract class ActivityContainerAggregate
       {
         log.error("Unable to instanciate the fragment '" + fragmentClass.getSimpleName() + "'", exception);
       }
-    }
-  }
-
-  public void openParameterFragment()
-  {
-    if (activityParameters != null && activityParameters.fragmentClass() != null)
-    {
-      openFragment(activityParameters.fragmentClass());
     }
   }
 

@@ -1,16 +1,17 @@
 package com.smartnsoft.droid4me.ext.app;
 
-import android.support.v4.app.Fragment;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import android.support.v4.app.Fragment;
+
 /**
  * @author Jocelyn Girard, Willy Noel
  * @since 2014.04.08
  */
-
+// TODO: find another name
 public final class ActivityContainerParameter
 {
 
@@ -26,6 +27,7 @@ public final class ActivityContainerParameter
 
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
+  // TODO: why not using the "Annotation" word?
   public static @interface ActivityParameters
   {
 
@@ -41,6 +43,7 @@ public final class ActivityContainerParameter
 
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
+  // TODO: why not using the "Annotation" word?
   public static @interface FragmentParameters
   {
 
@@ -53,6 +56,12 @@ public final class ActivityContainerParameter
     int layoutId() default -1;
 
     boolean homeAsBack() default false;
+
+  }
+
+  private ActivityContainerParameter()
+  {
+    super();
   }
 
 }

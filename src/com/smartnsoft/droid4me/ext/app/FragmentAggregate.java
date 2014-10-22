@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.app.Fragment;
 
 import com.smartnsoft.droid4me.app.SmartApplication;
+import com.smartnsoft.droid4me.log.Logger;
+import com.smartnsoft.droid4me.log.LoggerFactory;
 
 /**
  * @author Jocelyn Girard, Willy Noel
@@ -12,6 +14,8 @@ import com.smartnsoft.droid4me.app.SmartApplication;
  */
 public abstract class FragmentAggregate<SmartApplicationClass extends SmartApplication, SmartActivityClass extends Activity>
 {
+
+  protected final static Logger log = LoggerFactory.getInstance(FragmentAggregate.class);
 
   protected final Fragment fragment;
 
