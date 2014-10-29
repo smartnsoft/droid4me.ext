@@ -3,8 +3,8 @@ package com.smartnsoft.droid4me.ext.app;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
-
 import com.smartnsoft.droid4me.app.SmartApplication;
+import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.FragmentAnnotation;
 import com.smartnsoft.droid4me.log.Logger;
 import com.smartnsoft.droid4me.log.LoggerFactory;
 
@@ -21,8 +21,11 @@ public abstract class FragmentAggregate<SmartApplicationClass extends SmartAppli
 
   protected final android.support.v4.app.Fragment supportFragment;
 
-  public FragmentAggregate(Object fragment)
+  private final FragmentAnnotation fragmentAnnotation;
+
+  public FragmentAggregate(Object fragment, FragmentAnnotation fragmentAnnotation)
   {
+    this.fragmentAnnotation = fragmentAnnotation;
     if (fragment instanceof android.support.v4.app.Fragment == false)
     {
       this.fragment = (android.app.Fragment) fragment;
@@ -62,14 +65,18 @@ public abstract class FragmentAggregate<SmartApplicationClass extends SmartAppli
     }
   }
 
-  public void setActionBarTitle(int resourceTitle)
+  protected void onCreateDone()
   {
-    getActivity().getActionBar().setTitle(resourceTitle);
+    // We set the "title"
+    final int resourceTitle = fragmentAnnotation.fragmentTitle();
+    if (resourceTitle != -1)
+    {
+      getActivity().getActionBar().setTitle(resourceTitle);
+    }
+    final int resourceSubTitle = fragmentAnnotation.fragmentSubTitle();
+    if (resourceSubTitle != -1)
+    {
+      getActivity().getActionBar().setSubtitle(resourceTitle);
+    }
   }
-
-  public void setActionBarSubTitle(int resourceTitle)
-  {
-    getActivity().getActionBar().setSubtitle(resourceTitle);
-  }
-
 }

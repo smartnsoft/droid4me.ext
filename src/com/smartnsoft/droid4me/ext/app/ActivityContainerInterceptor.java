@@ -1,12 +1,11 @@
 package com.smartnsoft.droid4me.ext.app;
 
 import android.app.Activity;
-
 import com.smartnsoft.droid4me.app.ActivityController;
 import com.smartnsoft.droid4me.app.SmartApplication;
 import com.smartnsoft.droid4me.app.Smartable;
-import com.smartnsoft.droid4me.ext.app.ActivityContainerParameter.ActivityParameters;
-import com.smartnsoft.droid4me.ext.app.ActivityContainerParameter.FragmentParameters;
+import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActivityAnnotation;
+import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.FragmentAnnotation;
 
 /**
  * @author Jocelyn Girard, Willy Noel
@@ -16,13 +15,11 @@ public abstract class ActivityContainerInterceptor<ActivityAggregateClass extend
     implements ActivityController.Interceptor
 {
 
-  // TODO: shift this to the ActivityParameters annotations
-  protected abstract int getActivityContentViewResourceId();
+  protected abstract ActivityAggregateClass instantiateActivityAggregate(Activity activity,
+      Smartable<ActivityAggregateClass> smartableActivity, ActivityAnnotation annotation);
 
-  protected abstract ActivityAggregateClass instantiateActivityAggregate(Activity activity, Smartable<ActivityAggregateClass> smartableActivity,
-      ActivityParameters annotation);
-
-  protected abstract FragmentAggregateClass instantiateFragmentAggregate(Smartable<FragmentAggregateClass> smartableFragment);
+  protected abstract FragmentAggregateClass instantiateFragmentAggregate(
+      Smartable<FragmentAggregateClass> smartableFragment, FragmentAnnotation fragmentAnnotation);
 
   @SuppressWarnings("unchecked")
   @Override
@@ -34,13 +31,15 @@ public abstract class ActivityContainerInterceptor<ActivityAggregateClass extend
       {
         // It's a Fragment
         final Smartable<FragmentAggregateClass> smartableFragment = (Smartable<FragmentAggregateClass>) component;
-        smartableFragment.setAggregate(instantiateFragmentAggregate(smartableFragment));
+        final FragmentAnnotation fragmentAnnotation = smartableFragment.getClass().getAnnotation(FragmentAnnotation.class);
+        smartableFragment.setAggregate(instantiateFragmentAggregate(smartableFragment, fragmentAnnotation));
       }
       else
       {
         // It's an Activity
         final Smartable<ActivityAggregateClass> smartableActivity = (Smartable<ActivityAggregateClass>) activity;
-        smartableActivity.setAggregate(instantiateActivityAggregate(activity, smartableActivity, activity.getClass().getAnnotation(ActivityParameters.class)));
+        final ActivityAnnotation activityAnnotation = activity.getClass().getAnnotation(ActivityAnnotation.class);
+        smartableActivity.setAggregate(instantiateActivityAggregate(activity, smartableActivity, activityAnnotation));
       }
     }
     else if (interceptorEvent == InterceptorEvent.onCreate)
@@ -48,17 +47,8 @@ public abstract class ActivityContainerInterceptor<ActivityAggregateClass extend
       if (component == null && activity instanceof Smartable<?>)
       {
         // This is an Activity
-        final Smartable<?> smartableActivity = (Smartable<?>) activity;
-        if (smartableActivity.getAggregate() instanceof ActivityAggregate)
-        {
-          final Smartable<ActivityAggregate<? extends SmartApplication>> activityContainerSmartable = (Smartable<ActivityAggregate<? extends SmartApplication>>) smartableActivity;
-          if (activityContainerSmartable.getAggregate().getActivityParameters() != null)
-          {
-            activity.setContentView(getActivityContentViewResourceId());
-            activityContainerSmartable.getAggregate().openParameterFragment();
-            activityContainerSmartable.getAggregate().setActionBarBehavior();
-          }
-        }
+        final Smartable<ActivityAggregateClass> smartableActivity = (Smartable<ActivityAggregateClass>) activity;
+        smartableActivity.getAggregate().onCreate();
       }
     }
     else if (interceptorEvent == InterceptorEvent.onCreateDone)
@@ -67,22 +57,7 @@ public abstract class ActivityContainerInterceptor<ActivityAggregateClass extend
       {
         // We handle a Fragment
         final Smartable<FragmentAggregateClass> smartableFragment = (Smartable<FragmentAggregateClass>) component;
-        final FragmentParameters fragmentParameters = smartableFragment.getClass().getAnnotation(ActivityContainerParameter.FragmentParameters.class);
-        // TODO: delegate the handling to the Fragment Aggregate
-        if (fragmentParameters != null)
-        {
-          // We set the "title"
-          final int resourceTitle = fragmentParameters.fragmentTitle();
-          if (resourceTitle != -1)
-          {
-            smartableFragment.getAggregate().setActionBarTitle(resourceTitle);
-          }
-          final int resourceSubTitle = fragmentParameters.fragmentSubTitle();
-          if (resourceSubTitle != -1)
-          {
-            smartableFragment.getAggregate().setActionBarSubTitle(resourceSubTitle);
-          }
-        }
+        smartableFragment.getAggregate().onCreateDone();
       }
     }
   }

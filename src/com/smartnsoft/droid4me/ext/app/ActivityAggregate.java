@@ -5,12 +5,11 @@ import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-
 import com.smartnsoft.droid4me.app.SmartApplication;
 import com.smartnsoft.droid4me.app.Smartable;
-import com.smartnsoft.droid4me.ext.app.ActivityContainerParameter.ActivityParameters;
-import com.smartnsoft.droid4me.ext.app.ActivityContainerParameter.LogoIconTitleBehavior;
-import com.smartnsoft.droid4me.ext.app.ActivityContainerParameter.MenuBehavior;
+import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActionBarBehavior;
+import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActionBarTitleBehavior;
+import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActivityAnnotation;
 import com.smartnsoft.droid4me.log.Logger;
 import com.smartnsoft.droid4me.log.LoggerFactory;
 
@@ -27,62 +26,34 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
 
   protected final Smartable<?> smartable;
 
-  private final ActivityParameters activityParameters;
+  private final ActivityAnnotation activityAnnotation;
 
   protected Fragment fragment;
 
-  public ActivityAggregate(Activity activity, Smartable<?> smartable, ActivityParameters activityParameters)
+  public ActivityAggregate(Activity activity, Smartable<?> smartable, ActivityAnnotation activityAnnotation)
   {
     this.activity = activity;
     this.smartable = smartable;
-    this.activityParameters = activityParameters;
+    this.activityAnnotation = activityAnnotation;
   }
 
   public SmartApplicationClass getApplication()
   {
-    return (SmartApplicationClass) getApplication();
+    return (SmartApplicationClass) activity.getApplication();
   }
-
-  // TODO: think twice before exposing that method!
-  public final Fragment getFragment()
-  {
-    return fragment;
-  }
-
-  // TODO: think twice before exposing that method!
-  public final ActivityParameters getActivityParameters()
-  {
-    return activityParameters;
-  }
-
-  public void openParameterFragment()
-  {
-    if (activityParameters != null && activityParameters.fragmentClass() != null)
-    {
-      openFragment(activityParameters.fragmentClass());
-    }
-  }
-
-  /**
-   * Allows to specify the resource identifier for its container.
-   * 
-   * @return fragmentContainerIdentifier
-   */
-  // TODO: turn this into an annotation
-  protected abstract int getFragmentContainerIdentifier();
 
   /**
    * Open the specified fragment, the previous fragment is add to the back stack.
    * 
    * @param fragmentClass
    */
-  protected final void openFragment(Class<? extends Fragment> fragmentClass)
+  public final void openFragment(Class<? extends Fragment> fragmentClass)
   {
     try
     {
       final FragmentTransaction fragmentTransaction = ((FragmentActivity) activity).getSupportFragmentManager().beginTransaction();
       fragment = fragmentClass.newInstance();
-      fragmentTransaction.replace(getFragmentContainerIdentifier(), fragment);
+      fragmentTransaction.replace(activityAnnotation.fragmentContainerIdentifier(), fragment);
       fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
       fragmentTransaction.commit();
     }
@@ -95,10 +66,22 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
     }
   }
 
-  /**
-   * Set the behavior of the action bar
-   */
-  protected void setActionBarBehavior()
+  protected void onCreate()
+  {
+    activity.setContentView(activityAnnotation.contentViewIdentifier());
+    setActionBarBehavior();
+    openParameterFragment();
+  }
+
+  private void openParameterFragment()
+  {
+    if (activityAnnotation != null && activityAnnotation.fragmentClass() != null)
+    {
+      openFragment(activityAnnotation.fragmentClass());
+    }
+  }
+
+  private void setActionBarBehavior()
   {
     try
     {
@@ -107,17 +90,17 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
       getActionBar().setDisplayHomeAsUpEnabled(true);
       getActionBar().setDisplayShowHomeEnabled(true);
       getActionBar().setHomeButtonEnabled(true);
-      final LogoIconTitleBehavior logoIconTitleBehavior = activityParameters.logoIconTitleBehavior();
-      if (logoIconTitleBehavior == LogoIconTitleBehavior.UseLogo)
+      final ActionBarTitleBehavior actionBarTitleBehavior = activityAnnotation.actionBarTitleBehavior();
+      if (actionBarTitleBehavior == ActionBarTitleBehavior.UseLogo)
       {
         getActionBar().setDisplayShowTitleEnabled(false);
         getActionBar().setDisplayUseLogoEnabled(true);
       }
-      else if (logoIconTitleBehavior == LogoIconTitleBehavior.UseTitle)
+      else if (actionBarTitleBehavior == ActionBarTitleBehavior.UseTitle)
       {
         getActionBar().setDisplayShowTitleEnabled(true);
       }
-      if (MenuBehavior.ShowAsUp == activityParameters.menuBehavior())
+      if (ActionBarBehavior.ShowAsUp == activityAnnotation.actionBarUpBehavior())
       {
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setDisplayShowHomeEnabled(true);
