@@ -68,9 +68,12 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
 
   protected void onCreate()
   {
-    activity.setContentView(activityAnnotation.contentViewIdentifier());
-    setActionBarBehavior();
-    openParameterFragment();
+    if (activityAnnotation != null)
+    {
+      activity.setContentView(activityAnnotation.contentViewIdentifier());
+      setActionBarBehavior();
+      openParameterFragment();
+    }
   }
 
   private void openParameterFragment()

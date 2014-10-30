@@ -30,9 +30,9 @@ public final class ActivityAnnotations
   public static @interface ActivityAnnotation
   {
 
-    int contentViewIdentifier() default -1;
+    int contentViewIdentifier();
 
-    int fragmentContainerIdentifier() default -1;
+    int fragmentContainerIdentifier();
 
     Class<? extends Fragment> fragmentClass();
 
@@ -52,7 +52,7 @@ public final class ActivityAnnotations
 
     int fragmentSubTitle() default -1;
 
-    int layoutId() default -1;
+    int contentViewIdentifier();
 
     boolean homeAsBack() default false;
 
