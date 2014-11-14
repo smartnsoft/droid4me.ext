@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+
 import com.smartnsoft.droid4me.app.SmartApplication;
 import com.smartnsoft.droid4me.app.Smartable;
 import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActionBarBehavior;
@@ -37,6 +38,7 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
     this.activityAnnotation = activityAnnotation;
   }
 
+  @SuppressWarnings("unchecked")
   public SmartApplicationClass getApplication()
   {
     return (SmartApplicationClass) activity.getApplication();
@@ -84,43 +86,39 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
     }
   }
 
-  private void setActionBarBehavior()
+  protected void setActionBarBehavior()
   {
     try
     {
-      getActionBar().setDisplayShowTitleEnabled(false);
-      getActionBar().setDisplayUseLogoEnabled(false);
-      getActionBar().setDisplayHomeAsUpEnabled(true);
-      getActionBar().setDisplayShowHomeEnabled(true);
-      getActionBar().setHomeButtonEnabled(true);
+      final ActionBar actionBar = activity.getActionBar();
+      actionBar.setDisplayShowTitleEnabled(false);
+      actionBar.setDisplayUseLogoEnabled(false);
+      actionBar.setDisplayHomeAsUpEnabled(true);
+      actionBar.setDisplayShowHomeEnabled(true);
+      actionBar.setHomeButtonEnabled(true);
       final ActionBarTitleBehavior actionBarTitleBehavior = activityAnnotation.actionBarTitleBehavior();
       if (actionBarTitleBehavior == ActionBarTitleBehavior.UseLogo)
       {
-        getActionBar().setDisplayShowTitleEnabled(false);
-        getActionBar().setDisplayUseLogoEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayUseLogoEnabled(true);
       }
       else if (actionBarTitleBehavior == ActionBarTitleBehavior.UseTitle)
       {
-        getActionBar().setDisplayShowTitleEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(true);
       }
       if (ActionBarBehavior.ShowAsUp == activityAnnotation.actionBarUpBehavior())
       {
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setDisplayShowHomeEnabled(true);
-        getActionBar().setIcon(android.R.color.transparent);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setIcon(android.R.color.transparent);
       }
     }
-    catch (NullPointerException exception)
+    catch (Exception exception)
     {
       // Unable to manupilate the SupportActionBar with NoTitle theme.
       // http://stackoverflow.com/questions/20147921/actionbaractivity-getsupportactionbar-hide-throws-nullpointerexception
       // http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.3_r2.1/android/support/v7/app/ActionBarImplICS.java#302
     }
-  }
-
-  private ActionBar getActionBar()
-  {
-    return activity.getActionBar();
   }
 
 }

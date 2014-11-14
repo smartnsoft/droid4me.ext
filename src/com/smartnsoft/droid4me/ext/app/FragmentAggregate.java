@@ -68,12 +68,12 @@ public abstract class FragmentAggregate<SmartApplicationClass extends SmartAppli
   protected void onCreateDone()
   {
     // We set the "title"
-    final int resourceTitle = fragmentAnnotation.fragmentTitle();
+    final int resourceTitle = fragmentAnnotation.fragmentTitleIdentifier();
     if (resourceTitle != -1)
     {
       getActivity().getActionBar().setTitle(resourceTitle);
     }
-    final int resourceSubTitle = fragmentAnnotation.fragmentSubTitle();
+    final int resourceSubTitle = fragmentAnnotation.fragmentSubTitleIdentifier();
     if (resourceSubTitle != -1)
     {
       getActivity().getActionBar().setSubtitle(resourceTitle);
