@@ -47,13 +47,23 @@
         <role>developer</role>
       </roles>
     </developer>
+    <developer>
+      <id>jocelyn.girard</id>
+      <name>Jocelyn Girard</name>
+      <email>jocelyn@smartnsoft.com</email>
+      <organization><![CDATA[Smart&Soft]]></organization>
+      <organizationUrl>http://www.smartnsoft.com</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+    </developer>
   </developers>
 
   <scm>
-    <connection>scm:svn:https://svn2.smartnsoft.com/trunk/droid4me.ext</connection>
-    <developerConnection>scm:svn:https://svn2.smartnsoft.com/trunk/droid4me.ext</developerConnection>
-    <tag>HEAD</tag>
-    <url>https://svn2.smartnsoft.com/trunk/droid4me.ext</url>
+    <connection>scm:git:https://github.com/smartnsoft/droid4me.ext.git</connection>
+    <developerConnection>scm:git:https://github.com/smartnsoft/droid4me.ext.git</developerConnection>
+    <tag>master</tag>
+    <url>https://github.com/smartnsoft/droid4me.ext.git</url>
   </scm>
 
   <issueManagement>
