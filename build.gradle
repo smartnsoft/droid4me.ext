@@ -1,0 +1,29 @@
+apply plugin: 'java'
+
+compileJava.options.encoding = 'ISO-8859-1'
+
+sourceSets
+{
+  main
+  {
+    java
+    {
+      srcDir 'src'
+      exclude 'com/smartnsoft/droid4me/ext/ui/**/*.java'
+      exclude 'com/smartnsoft/droid4me/ext/widget/SmartAbsSpinner.java'
+      exclude 'com/smartnsoft/droid4me/ext/widget/SmartAdaterView.java'
+      exclude 'com/smartnsoft/droid4me/ext/widget/SmartCoverFlow.java'
+      exclude 'com/smartnsoft/droid4me/ext/widget/SmartGallery.java'
+    }
+  }
+}
+
+dependencies
+{
+  compile 'android:android:4.2_r1'
+  compile 'android.support:compatibility-v4:11'
+  compile 'com.google.android.annotations:annotations:21.0.1'
+  compile 'com.fasterxml.jackson.core:jackson-databind:2.1.1'
+
+  compile 'com.smartnsoft:droid4me:2.2.15'
+}
