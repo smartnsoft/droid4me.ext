@@ -2,6 +2,7 @@ package com.smartnsoft.droid4me.ext.app;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import com.smartnsoft.droid4me.app.SmartApplication;
@@ -50,12 +51,24 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    */
   public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass)
   {
+    openFragment(fragmentClass, activity.getIntent().getExtras());
+  }
+
+  /**
+   * Open the specified fragment, the previous fragment is add to the back stack.
+   *
+   * @param fragmentClass
+   * @param arguments
+   */
+  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, Bundle arguments)
+  {
     try
     {
       final FragmentTransaction fragmentTransaction = ((FragmentActivity) activity).getSupportFragmentManager().beginTransaction();
       fragment = fragmentClass.newInstance();
+      fragment.setArguments(arguments);
       fragmentTransaction.replace(activityAnnotation.fragmentContainerIdentifier(), fragment);
-      fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+      fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
       fragmentTransaction.commit();
     }
     catch (Exception exception)
