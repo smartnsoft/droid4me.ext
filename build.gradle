@@ -2,8 +2,18 @@ apply plugin: 'java'
 
 compileJava.options.encoding = 'ISO-8859-1'
 
+configurations
+{
+  provided
+}
+
 sourceSets
 {
+  // Define the 'provided' definition like Maven dependency scope
+  main.compileClasspath += configurations.provided
+  test.compileClasspath += configurations.provided
+  test.runtimeClasspath += configurations.provided
+
   main
   {
     java
@@ -20,10 +30,10 @@ sourceSets
 
 dependencies
 {
-  compile 'android:android:4.2_r1'
-  compile 'android.support:compatibility-v4:11'
-  compile 'com.google.android.annotations:annotations:21.0.1'
-  compile 'com.fasterxml.jackson.core:jackson-databind:2.1.1'
+  provided 'android:android:4.2_r1'
+  provided 'android.support:compatibility-v4:11'
+  provided 'com.google.android.annotations:annotations:21.0.1'
 
+  compile 'com.fasterxml.jackson.core:jackson-databind:2.1.1'
   compile 'com.smartnsoft:droid4me:2.2.15'
 }

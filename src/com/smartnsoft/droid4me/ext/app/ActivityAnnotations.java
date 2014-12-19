@@ -9,7 +9,8 @@ import java.text.Annotation;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.support.v4.app.Fragment;
+
+import com.smartnsoft.droid4me.support.v4.app.SmartFragment;
 
 /**
  * 
@@ -58,7 +59,7 @@ public final class ActivityAnnotations
     /**
      * @return the fragment class to be instanciate and displayed in the {@link ActivityAnnotation#fragmentContainerIdentifier()} view holder.
      */
-    Class<? extends Fragment> fragmentClass();
+    Class<? extends SmartFragment<?>> fragmentClass();
 
     /**
      * @return the {@link ActionBar} "home" button action behavior

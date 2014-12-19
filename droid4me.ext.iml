@@ -27,9 +27,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="android-4.2_r1" level="project" />
-    <orderEntry type="library" exported="" name="compatibility-v4-11" level="project" />
-    <orderEntry type="library" exported="" name="annotations-21.0.1" level="project" />
     <orderEntry type="library" exported="" name="jackson-databind-2.1.1" level="project" />
     <orderEntry type="library" exported="" name="droid4me-2.2.15" level="project" />
     <orderEntry type="library" exported="" name="jackson-annotations-2.1.1" level="project" />

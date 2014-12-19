@@ -2,10 +2,8 @@ package com.smartnsoft.droid4me.ext.app;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-
 import com.smartnsoft.droid4me.app.SmartApplication;
 import com.smartnsoft.droid4me.app.Smartable;
 import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActionBarBehavior;
@@ -13,6 +11,7 @@ import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActionBarTitleBehavio
 import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActivityAnnotation;
 import com.smartnsoft.droid4me.log.Logger;
 import com.smartnsoft.droid4me.log.LoggerFactory;
+import com.smartnsoft.droid4me.support.v4.app.SmartFragment;
 
 /**
  * @author Jocelyn Girard, Willy Noel
@@ -29,7 +28,7 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
 
   private final ActivityAnnotation activityAnnotation;
 
-  protected Fragment fragment;
+  protected SmartFragment<?> fragment;
 
   public ActivityAggregate(Activity activity, Smartable<?> smartable, ActivityAnnotation activityAnnotation)
   {
@@ -46,10 +45,10 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
 
   /**
    * Open the specified fragment, the previous fragment is add to the back stack.
-   * 
+   *
    * @param fragmentClass
    */
-  public final void openFragment(Class<? extends Fragment> fragmentClass)
+  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass)
   {
     try
     {
@@ -66,6 +65,16 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
         log.error("Unable to instanciate the fragment '" + fragmentClass.getSimpleName() + "'", exception);
       }
     }
+  }
+
+  public final SmartFragment<?> getOpennedFragment()
+  {
+    return fragment;
+  }
+
+  public final ActivityAnnotation getActivityAnnotation()
+  {
+    return activityAnnotation;
   }
 
   protected void onCreate()
@@ -86,38 +95,55 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
     }
   }
 
+  protected abstract Object getActionBar(Activity activity);
+
   protected void setActionBarBehavior()
   {
-    try
+    final Object actionBarObject = getActionBar(activity);
+    if (actionBarObject instanceof ActionBar)
     {
-      final ActionBar actionBar = activity.getActionBar();
-      actionBar.setDisplayShowTitleEnabled(false);
-      actionBar.setDisplayUseLogoEnabled(false);
-      actionBar.setDisplayHomeAsUpEnabled(true);
-      actionBar.setDisplayShowHomeEnabled(true);
-      actionBar.setHomeButtonEnabled(true);
+      final ActionBar actionBar = (ActionBar) actionBarObject;
       final ActionBarTitleBehavior actionBarTitleBehavior = activityAnnotation.actionBarTitleBehavior();
-      if (actionBarTitleBehavior == ActionBarTitleBehavior.UseLogo)
+      switch (actionBarTitleBehavior)
       {
+      case UseIcon:
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayUseLogoEnabled(false);
+        actionBar.setDisplayShowHomeEnabled(true);
+        break;
+
+      case UseLogo:
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayUseLogoEnabled(true);
-      }
-      else if (actionBarTitleBehavior == ActionBarTitleBehavior.UseTitle)
-      {
-        actionBar.setDisplayShowTitleEnabled(true);
-      }
-      if (ActionBarBehavior.ShowAsUp == activityAnnotation.actionBarUpBehavior())
-      {
-        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setIcon(android.R.color.transparent);
+        break;
+
+      default:
+      case UseTitle:
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setDisplayUseLogoEnabled(false);
+        actionBar.setDisplayShowHomeEnabled(true);
+        break;
       }
-    }
-    catch (Exception exception)
-    {
-      // Unable to manupilate the SupportActionBar with NoTitle theme.
-      // http://stackoverflow.com/questions/20147921/actionbaractivity-getsupportactionbar-hide-throws-nullpointerexception
-      // http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.3_r2.1/android/support/v7/app/ActionBarImplICS.java#302
+      final ActionBarBehavior actionBarUpBehavior = activityAnnotation.actionBarUpBehavior();
+      switch (actionBarUpBehavior)
+      {
+      case ShowAsUp:
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        break;
+
+      case ShowAsDrawer:
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        break;
+
+      default:
+      case None:
+        actionBar.setHomeButtonEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        break;
+      }
     }
   }
 
