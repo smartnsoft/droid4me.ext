@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.Fragment.SavedState;
 import com.smartnsoft.droid4me.app.SmartApplication;
 import com.smartnsoft.droid4me.app.Smartable;
 import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActionBarBehavior;
@@ -51,7 +52,7 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    */
   public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass)
   {
-    openFragment(fragmentClass, activity.getIntent().getExtras());
+    openFragment(fragmentClass, null, activity.getIntent().getExtras());
   }
 
   /**
@@ -60,13 +61,20 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    * @param fragmentClass
    * @param arguments
    */
-  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, Bundle arguments)
+  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState, Bundle arguments)
   {
     try
     {
       final FragmentTransaction fragmentTransaction = ((FragmentActivity) activity).getSupportFragmentManager().beginTransaction();
       fragment = fragmentClass.newInstance();
       fragment.setArguments(arguments);
+
+      // We (re)set its initial state if necessary
+      if (savedState != null)
+      {
+        fragment.setInitialSavedState(savedState);
+      }
+
       fragmentTransaction.replace(activityAnnotation.fragmentContainerIdentifier(), fragment);
       fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
       fragmentTransaction.commit();
