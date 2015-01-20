@@ -79,4 +79,10 @@ public abstract class FragmentAggregate<SmartApplicationClass extends SmartAppli
       getActivity().getActionBar().setSubtitle(resourceTitle);
     }
   }
+
+  public FragmentAnnotation getFragmentAnnotation()
+  {
+    return fragmentAnnotation;
+  }
+
 }
