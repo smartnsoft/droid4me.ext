@@ -14,6 +14,7 @@ import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActivityAnnotation;
 import com.smartnsoft.droid4me.log.Logger;
 import com.smartnsoft.droid4me.log.LoggerFactory;
 import com.smartnsoft.droid4me.support.v4.app.SmartFragment;
+import com.smartnsoft.droid4me.support.v4.app.SmartFragmentActivity;
 
 /**
  * @author Jocelyn Girard, Willy Noel
@@ -104,7 +105,15 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
     {
       activity.setContentView(activityAnnotation.contentViewIdentifier());
       setActionBarBehavior();
-      openParameterFragment();
+      if (activity instanceof FragmentActivity)
+      {
+        final FragmentActivity fragmentActivity = (FragmentActivity) activity;
+        fragment = (SmartFragment<?>) fragmentActivity.getSupportFragmentManager().findFragmentById(activityAnnotation.fragmentContainerIdentifier());
+        if (fragment == null)
+        {
+          openParameterFragment();
+        }
+      }
     }
   }
 
