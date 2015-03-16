@@ -1,9 +1,14 @@
 package com.smartnsoft.droid4me.ext.app;
 
-import android.app.ActionBar;
 import android.app.Activity;
+import android.os.Bundle;
+import android.support.v4.app.Fragment.SavedState;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
+
 import com.smartnsoft.droid4me.app.SmartApplication;
 import com.smartnsoft.droid4me.app.Smartable;
 import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActionBarBehavior;
@@ -50,12 +55,31 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    */
   public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass)
   {
+    openFragment(fragmentClass, null, activity.getIntent().getExtras());
+  }
+
+  /**
+   * Open the specified fragment, the previous fragment is add to the back stack.
+   *
+   * @param fragmentClass
+   * @param arguments
+   */
+  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState, Bundle arguments)
+  {
     try
     {
       final FragmentTransaction fragmentTransaction = ((FragmentActivity) activity).getSupportFragmentManager().beginTransaction();
       fragment = fragmentClass.newInstance();
+      fragment.setArguments(arguments);
+
+      // We (re)set its initial state if necessary
+      if (savedState != null)
+      {
+        fragment.setInitialSavedState(savedState);
+      }
+
       fragmentTransaction.replace(activityAnnotation.fragmentContainerIdentifier(), fragment);
-      fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+      fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
       fragmentTransaction.commit();
     }
     catch (Exception exception)
@@ -82,12 +106,26 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
     if (activityAnnotation != null)
     {
       activity.setContentView(activityAnnotation.contentViewIdentifier());
+      final int toolbarIdentifier = activityAnnotation.toolbarIdentifier();
+      if (toolbarIdentifier > 0 && activity instanceof ActionBarActivity)
+      {
+        final Toolbar toolbar = (Toolbar) activity.findViewById(toolbarIdentifier);
+        ((ActionBarActivity) activity).setSupportActionBar(toolbar);
+      }
       setActionBarBehavior();
-      openParameterFragment();
+      if (activity instanceof FragmentActivity)
+      {
+        final FragmentActivity fragmentActivity = (FragmentActivity) activity;
+        fragment = (SmartFragment<?>) fragmentActivity.getSupportFragmentManager().findFragmentById(activityAnnotation.fragmentContainerIdentifier());
+        if (fragment == null)
+        {
+          openParameterFragment();
+        }
+      }
     }
   }
 
-  private void openParameterFragment()
+  protected void openParameterFragment()
   {
     if (activityAnnotation != null && activityAnnotation.fragmentClass() != null)
     {
@@ -103,6 +141,51 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
     if (actionBarObject instanceof ActionBar)
     {
       final ActionBar actionBar = (ActionBar) actionBarObject;
+      final ActionBarTitleBehavior actionBarTitleBehavior = activityAnnotation.actionBarTitleBehavior();
+      switch (actionBarTitleBehavior)
+      {
+      case UseIcon:
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayUseLogoEnabled(false);
+        actionBar.setDisplayShowHomeEnabled(true);
+        break;
+
+      case UseLogo:
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayUseLogoEnabled(true);
+        actionBar.setDisplayShowHomeEnabled(true);
+        break;
+
+      default:
+      case UseTitle:
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setDisplayUseLogoEnabled(false);
+        actionBar.setDisplayShowHomeEnabled(true);
+        break;
+      }
+      final ActionBarBehavior actionBarUpBehavior = activityAnnotation.actionBarUpBehavior();
+      switch (actionBarUpBehavior)
+      {
+      case ShowAsUp:
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        break;
+
+      case ShowAsDrawer:
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        break;
+
+      default:
+      case None:
+        actionBar.setHomeButtonEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        break;
+      }
+    }
+    else if (actionBarObject instanceof android.app.ActionBar)
+    {
+      final android.app.ActionBar actionBar = (android.app.ActionBar) actionBarObject;
       final ActionBarTitleBehavior actionBarTitleBehavior = activityAnnotation.actionBarTitleBehavior();
       switch (actionBarTitleBehavior)
       {

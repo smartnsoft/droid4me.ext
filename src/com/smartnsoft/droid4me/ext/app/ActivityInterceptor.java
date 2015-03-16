@@ -82,7 +82,7 @@ public abstract class ActivityInterceptor<ActivityAggregateClass extends Activit
       {
         // We handle a Fragment
         final Smartable<FragmentAggregateClass> smartableFragment = (Smartable<FragmentAggregateClass>) component;
-        smartableFragment.getAggregate().onCreateDone();
+        smartableFragment.getAggregate().onCreateDone(activity);
       }
     }
   }

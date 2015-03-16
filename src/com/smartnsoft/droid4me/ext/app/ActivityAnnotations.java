@@ -71,6 +71,11 @@ public final class ActivityAnnotations
      */
     ActionBarTitleBehavior actionBarTitleBehavior() default ActionBarTitleBehavior.UseLogo;
 
+    /**
+     * @return the {@link Toolbar} layout identifier to be used as 'ActionBar'
+     */
+    int toolbarIdentifier() default 0;
+    
   }
 
   @Retention(RetentionPolicy.RUNTIME)
@@ -93,7 +98,7 @@ public final class ActivityAnnotations
      * @return the layout identifier to be used in the
      *         {@link android.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)} method.
      */
-    int contentViewIdentifier();
+    int layoutIdentifier();
 
     /**
      * @return Whether the {@link ActionBar} "home" button is used as back behavior

@@ -16,6 +16,7 @@ gen/
 # Gradle files
 .gradle/
 build/
+target/
 *.iml
 
 # Local configuration file (sdk path, etc)
@@ -29,3 +30,4 @@ proguard/
 
 # IntelliJ
 .idea/
+*.iml

@@ -241,6 +241,7 @@ public final class BcelTest
                 final InstructionHandle first = match[0];
                 final Instruction firstInstruction = first.getInstruction();
                 final InstructionHandle beforeFirst = first.getPrev();
+                @SuppressWarnings("unused")
                 final InstructionHandle afterFirst = first.getNext();
                 if ("a".equals(""))
                 {
