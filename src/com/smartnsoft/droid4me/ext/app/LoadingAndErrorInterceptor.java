@@ -64,6 +64,13 @@ public abstract class LoadingAndErrorInterceptor
     implements ActivityController.Interceptor
 {
 
+  public static interface BusinessObjectUnavailableReporter<FragmentAggregateClass extends FragmentAggregate<?, ?>>
+  {
+
+    void reportBusinessObjectUnavailableException(Smartable<FragmentAggregateClass> smartableFragment,
+        BusinessObjectUnavailableException businessObjectUnavailableException);
+  }
+
   public static interface ErrorAndRetryManagerProvider
   {
 

@@ -98,7 +98,7 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
     }
   }
 
-  public final SmartFragment<?> getOpennedFragment()
+  public final SmartFragment<?> getOpenedFragment()
   {
     return fragment;
   }

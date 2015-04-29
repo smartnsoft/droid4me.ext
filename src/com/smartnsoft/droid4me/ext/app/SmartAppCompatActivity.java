@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,11 +19,12 @@ import com.smartnsoft.droid4me.app.SmartableActivity;
  * @author Jocelyn Girard
  * @since 2014.10.29
  */
-public abstract class SmartActionBarActivity<AggregateClass>
-    extends ActionBarActivity
+public abstract class SmartAppCompatActivity<AggregateClass>
+    extends AppCompatActivity
     implements SmartableActivity<AggregateClass>
 {
-  private final Droid4mizer<AggregateClass, SmartActionBarActivity<AggregateClass>> droid4mizer = new Droid4mizer<AggregateClass, SmartActionBarActivity<AggregateClass>>(this, this, this, null);
+
+  private final Droid4mizer<AggregateClass, SmartAppCompatActivity<AggregateClass>> droid4mizer = new Droid4mizer<AggregateClass, SmartAppCompatActivity<AggregateClass>>(this, this, this, null);
 
   @Override
   public LayoutInflater getLayoutInflater()
@@ -49,9 +50,10 @@ public abstract class SmartActionBarActivity<AggregateClass>
   {
     droid4mizer.onCreate(new Runnable()
     {
+      @Override
       public void run()
       {
-        SmartActionBarActivity.super.onCreate(savedInstanceState);
+        SmartAppCompatActivity.super.onCreate(savedInstanceState);
       }
     }, savedInstanceState);
   }
@@ -211,61 +213,73 @@ public abstract class SmartActionBarActivity<AggregateClass>
    * Smartable implementation.
    */
 
+  @Override
   public AggregateClass getAggregate()
   {
     return droid4mizer.getAggregate();
   }
 
+  @Override
   public void setAggregate(AggregateClass aggregate)
   {
     droid4mizer.setAggregate(aggregate);
   }
 
+  @Override
   public Handler getHandler()
   {
     return droid4mizer.getHandler();
   }
 
+  @Override
   public SharedPreferences getPreferences()
   {
     return droid4mizer.getPreferences();
   }
 
+  @Override
   public void onException(Throwable throwable, boolean fromGuiThread)
   {
     droid4mizer.onException(throwable, fromGuiThread);
   }
 
+  @Override
   public void registerBroadcastListeners(BroadcastListener[] broadcastListeners)
   {
     droid4mizer.registerBroadcastListeners(broadcastListeners);
   }
 
+  @Override
   public int getOnSynchronizeDisplayObjectsCount()
   {
     return droid4mizer.getOnSynchronizeDisplayObjectsCount();
   }
 
+  @Override
   public boolean isRefreshingBusinessObjectsAndDisplay()
   {
     return droid4mizer.isRefreshingBusinessObjectsAndDisplay();
   }
 
+  @Override
   public boolean isFirstLifeCycle()
   {
     return droid4mizer.isFirstLifeCycle();
   }
 
+  @Override
   public final boolean isInteracting()
   {
     return droid4mizer.isInteracting();
   }
 
+  @Override
   public final boolean isAlive()
   {
     return droid4mizer.isAlive();
   }
 
+  @Override
   public void refreshBusinessObjectsAndDisplay(boolean retrieveBusinessObjects, Runnable onOver, boolean immediately)
   {
     droid4mizer.refreshBusinessObjectsAndDisplay(retrieveBusinessObjects, onOver, immediately);
@@ -275,6 +289,7 @@ public abstract class SmartActionBarActivity<AggregateClass>
    * AppInternals.LifeCycleInternals implementation.
    */
 
+  @Override
   public boolean shouldKeepOn()
   {
     return droid4mizer.shouldKeepOn();
@@ -284,17 +299,19 @@ public abstract class SmartActionBarActivity<AggregateClass>
    * Own implementation.
    */
 
+  @Override
   public void onBusinessObjectsRetrieved()
   {
   }
 
   /**
    * Same as invoking {@link #refreshBusinessObjectsAndDisplay(true, null, false)}.
-   *
+   * 
    * @see #refreshBusinessObjectsAndDisplay(boolean, Runnable, boolean)
    */
   public final void refreshBusinessObjectsAndDisplay()
   {
     refreshBusinessObjectsAndDisplay(true, null, false);
   }
+
 }

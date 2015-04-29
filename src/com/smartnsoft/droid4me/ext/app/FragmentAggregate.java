@@ -3,12 +3,16 @@ package com.smartnsoft.droid4me.ext.app;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
+import android.support.annotation.IdRes;
+import android.support.v4.app.Fragment.SavedState;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 
 import com.smartnsoft.droid4me.app.SmartApplication;
 import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.FragmentAnnotation;
 import com.smartnsoft.droid4me.log.Logger;
 import com.smartnsoft.droid4me.log.LoggerFactory;
+import com.smartnsoft.droid4me.support.v4.app.SmartFragment;
 
 /**
  * @author Jocelyn Girard, Willy Noel
@@ -16,6 +20,12 @@ import com.smartnsoft.droid4me.log.LoggerFactory;
  */
 public abstract class FragmentAggregate<SmartApplicationClass extends SmartApplication, SmartActivityClass extends Activity>
 {
+
+  public static interface OnBackPressedListener
+  {
+
+    boolean onBackPressed();
+  }
 
   protected final static Logger log = LoggerFactory.getInstance(FragmentAggregate.class);
 
@@ -68,7 +78,7 @@ public abstract class FragmentAggregate<SmartApplicationClass extends SmartAppli
   }
 
   protected abstract Object getActionBar(Activity activity);
-  
+
   protected void onCreateDone(Activity activity)
   {
     final Object actionBarObject = getActionBar(activity);
@@ -96,6 +106,38 @@ public abstract class FragmentAggregate<SmartApplicationClass extends SmartAppli
       if (subTitleIdentifier > 0)
       {
         actionBar.setSubtitle(subTitleIdentifier);
+      }
+    }
+  }
+
+  /**
+   * Open the specified fragment, the previous fragment is add to the back stack.
+   * 
+   */
+  public final void openChildFragment(SmartFragment<?> parentFragment, @IdRes int fragmentPlaceholderIdentifier,
+      Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState)
+  {
+    try
+    {
+      final FragmentTransaction fragmentTransaction = parentFragment.getChildFragmentManager().beginTransaction();
+      final android.support.v4.app.Fragment childfragment = fragmentClass.newInstance();
+      childfragment.setArguments(parentFragment.getArguments());
+
+      // We (re)set its initial state if necessary
+      if (savedState != null)
+      {
+        childfragment.setInitialSavedState(savedState);
+      }
+
+      fragmentTransaction.replace(fragmentPlaceholderIdentifier, childfragment);
+      fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+      fragmentTransaction.commit();
+    }
+    catch (Exception exception)
+    {
+      if (log.isErrorEnabled())
+      {
+        log.error("Unable to instanciate the fragment '" + fragmentClass.getSimpleName() + "'", exception);
       }
     }
   }
