@@ -68,11 +68,11 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
   {
     try
     {
-      if (fragment == null)
-      {
-        fragment = (SmartFragment<?>) ((FragmentActivity) activity).getSupportFragmentManager().findFragmentById(activityAnnotation.fragmentContainerIdentifier());
-      }
-      if (fragment == null)
+//      if (fragment == null)
+//      {
+//        fragment = (SmartFragment<?>) ((FragmentActivity) activity).getSupportFragmentManager().findFragmentById(activityAnnotation.fragmentContainerIdentifier());
+//      }
+//      if (fragment == null)
       {
         fragment = fragmentClass.newInstance();
       }
