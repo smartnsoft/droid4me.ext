@@ -66,13 +66,12 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    */
   public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState, Bundle arguments)
   {
-    if (fragment == null)
-    {
-      fragment = (SmartFragment<?>) ((FragmentActivity) activity).getSupportFragmentManager().findFragmentById(activityAnnotation.fragmentContainerIdentifier());
-    }
     try
     {
-      final FragmentTransaction fragmentTransaction = ((FragmentActivity) activity).getSupportFragmentManager().beginTransaction();
+      if (fragment == null)
+      {
+        fragment = (SmartFragment<?>) ((FragmentActivity) activity).getSupportFragmentManager().findFragmentById(activityAnnotation.fragmentContainerIdentifier());
+      }
       if (fragment == null)
       {
         fragment = fragmentClass.newInstance();
@@ -84,7 +83,8 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
       {
         fragment.setInitialSavedState(savedState);
       }
-
+     
+      final FragmentTransaction fragmentTransaction = ((FragmentActivity) activity).getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(activityAnnotation.fragmentContainerIdentifier(), fragment);
       fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
       fragmentTransaction.commit();
