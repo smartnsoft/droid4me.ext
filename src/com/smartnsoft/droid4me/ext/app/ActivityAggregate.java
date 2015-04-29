@@ -66,10 +66,17 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    */
   public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState, Bundle arguments)
   {
+    if (fragment == null)
+    {
+      fragment = (SmartFragment<?>) ((FragmentActivity) activity).getSupportFragmentManager().findFragmentById(activityAnnotation.fragmentContainerIdentifier());
+    }
     try
     {
       final FragmentTransaction fragmentTransaction = ((FragmentActivity) activity).getSupportFragmentManager().beginTransaction();
-      fragment = fragmentClass.newInstance();
+      if (fragment == null)
+      {
+        fragment = fragmentClass.newInstance();
+      }
       fragment.setArguments(arguments);
 
       // We (re)set its initial state if necessary
