@@ -202,7 +202,7 @@ public abstract class ConnectivityListener
       // We transmit the connectivity status
       updateActivityOnCreate(activity, component);
     }
-    else if (event == InterceptorEvent.onStop)
+    else if (event == InterceptorEvent.onDestroy)
     {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
       {
