@@ -55,7 +55,17 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    */
   public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass)
   {
-    openFragment(fragmentClass, null, activity.getIntent().getExtras());
+    openFragment(fragmentClass, activityAnnotation.fragmentContainerIdentifier(), null, activity.getIntent().getExtras());
+  }
+
+  /**
+   * Open the specified fragment, the previous fragment is add to the back stack.
+   *
+   * @param fragmentClass
+   */
+  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, int fragmentContainerIdentifer)
+  {
+    openFragment(fragmentClass, fragmentContainerIdentifer, null, activity.getIntent().getExtras());
   }
 
   /**
@@ -64,18 +74,11 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    * @param fragmentClass
    * @param arguments
    */
-  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState, Bundle arguments)
+  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, int fragmentContainerIdentifer, SavedState savedState, Bundle arguments)
   {
     try
     {
-//      if (fragment == null)
-//      {
-//        fragment = (SmartFragment<?>) ((FragmentActivity) activity).getSupportFragmentManager().findFragmentById(activityAnnotation.fragmentContainerIdentifier());
-//      }
-//      if (fragment == null)
-      {
-        fragment = fragmentClass.newInstance();
-      }
+      fragment = fragmentClass.newInstance();
       fragment.setArguments(arguments);
 
       // We (re)set its initial state if necessary
@@ -83,11 +86,11 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
       {
         fragment.setInitialSavedState(savedState);
       }
-     
+
       final FragmentTransaction fragmentTransaction = ((FragmentActivity) activity).getSupportFragmentManager().beginTransaction();
-      fragmentTransaction.replace(activityAnnotation.fragmentContainerIdentifier(), fragment);
+      fragmentTransaction.replace(fragmentContainerIdentifer, fragment);
       fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-      fragmentTransaction.commit();
+      fragmentTransaction.commitAllowingStateLoss();
     }
     catch (Exception exception)
     {
