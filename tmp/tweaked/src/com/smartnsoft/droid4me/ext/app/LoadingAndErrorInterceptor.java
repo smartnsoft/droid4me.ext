@@ -64,6 +64,13 @@ public abstract class LoadingAndErrorInterceptor
     implements ActivityController.Interceptor
 {
 
+  public static interface BusinessObjectUnavailableReporter<FragmentAggregateClass extends FragmentAggregate<?, ?>>
+  {
+
+    void reportBusinessObjectUnavailableException(Smartable<FragmentAggregateClass> smartableFragment,
+        BusinessObjectUnavailableException businessObjectUnavailableException);
+  }
+
   public static interface ErrorAndRetryManagerProvider
   {
 
@@ -350,7 +357,14 @@ public abstract class LoadingAndErrorInterceptor
           public void run()
           {
             isHandlingError = false;
-            containerView.setVisibility(View.GONE);
+            containerView.post(new Runnable()
+            {
+              @Override
+              public final void run()
+              {
+                containerView.setVisibility(View.GONE);
+              }
+            });
             // System.out.println("showError containerView.setVisibility(View.GONE)" + Thread.currentThread().getName());
             if (onCompletion != null)
             {
@@ -358,7 +372,14 @@ public abstract class LoadingAndErrorInterceptor
             }
           }
         });
-        containerView.setVisibility(View.VISIBLE);
+        containerView.post(new Runnable()
+        {
+          @Override
+          public final void run()
+          {
+            containerView.setVisibility(View.VISIBLE);
+          }
+        });
         // System.out.println("showError containerView.setVisibility(View.VISIBLE)" + Thread.currentThread().getName());
       }
     }

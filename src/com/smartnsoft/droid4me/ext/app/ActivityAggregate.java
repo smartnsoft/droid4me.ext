@@ -72,6 +72,16 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    * Open the specified fragment, the previous fragment is add to the back stack.
    *
    * @param fragmentClass
+   */
+  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState, Bundle arguments)
+  {
+    openFragment(fragmentClass, activityAnnotation.fragmentContainerIdentifier(), null, activity.getIntent().getExtras());
+  }
+
+  /**
+   * Open the specified fragment, the previous fragment is add to the back stack.
+   *
+   * @param fragmentClass
    * @param arguments
    */
   public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, int fragmentContainerIdentifer, SavedState savedState, Bundle arguments)

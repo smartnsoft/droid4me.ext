@@ -1,7 +1,9 @@
 package com.smartnsoft.droid4me.ext.app;
 
 import android.app.Activity;
+import android.os.Bundle;
 
+import com.smartnsoft.droid4me.LifeCycle.BusinessObjectUnavailableException;
 import com.smartnsoft.droid4me.app.ActivityController;
 import com.smartnsoft.droid4me.app.SmartActivity;
 import com.smartnsoft.droid4me.app.SmartApplication;
@@ -20,6 +22,30 @@ import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.FragmentAnnotation;
 public abstract class ActivityInterceptor<ActivityAggregateClass extends ActivityAggregate<? extends SmartApplication>, FragmentAggregateClass extends FragmentAggregate<? extends SmartApplication, ? extends Activity>>
     implements ActivityController.Interceptor
 {
+
+  public static final class BusinessObjectsContainer
+  {
+
+    private static final String BUSINESS_OBJECT_UNAVAILABLE_EXCEPTION = "businessObjectUnavailableException";
+
+    private BusinessObjectUnavailableException exception;
+
+    public void onRestoreInstanceState(Bundle bundle)
+    {
+      if (bundle != null)
+      {
+        exception = (BusinessObjectUnavailableException) bundle.getSerializable(BusinessObjectsContainer.BUSINESS_OBJECT_UNAVAILABLE_EXCEPTION);
+      }
+    }
+
+    public void onSaveInstanceState(Bundle bundle)
+    {
+      if (exception != null)
+      {
+        bundle.putSerializable(BusinessObjectsContainer.BUSINESS_OBJECT_UNAVAILABLE_EXCEPTION, exception);
+      }
+    }
+  }
 
   /**
    * This method is responsible for instantiating an {@link ActivityAggregate} class, which will be defined as a {@link SmartableActivity} aggregate.
@@ -82,7 +108,7 @@ public abstract class ActivityInterceptor<ActivityAggregateClass extends Activit
       {
         // We handle a Fragment
         final Smartable<FragmentAggregateClass> smartableFragment = (Smartable<FragmentAggregateClass>) component;
-        smartableFragment.getAggregate().onCreateDone();
+        smartableFragment.getAggregate().onCreateDone(activity);
       }
     }
   }
