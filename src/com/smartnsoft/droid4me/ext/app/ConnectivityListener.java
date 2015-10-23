@@ -15,6 +15,9 @@
 
 package com.smartnsoft.droid4me.ext.app;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -82,6 +85,8 @@ public abstract class ConnectivityListener
   private NetworkCallback networkCallback;
 
   private int activitiesCount;
+
+  private Map<String, Boolean> networkStatus = new HashMap<String, Boolean>();
 
   /**
    * The constructor will issue an exception if the hosting application does not declare the {@code android.permission.ACCESS_NETWORK_STATE}
@@ -282,13 +287,15 @@ public abstract class ConnectivityListener
           @Override
           public void onAvailable(Network network)
           {
-            onNetworkChangedLollipopAndAbove(activity, component, true);
+            networkStatus.put(network.toString(), true);
+            onNetworkChangedLollipopAndAbove(activity, component, networkStatus.containsValue(true));
           }
 
           @Override
           public void onLost(Network network)
           {
-            onNetworkChangedLollipopAndAbove(activity, component, false);
+            networkStatus.remove(network.toString());
+            onNetworkChangedLollipopAndAbove(activity, component, networkStatus.containsValue(true));
           }
         };
 
