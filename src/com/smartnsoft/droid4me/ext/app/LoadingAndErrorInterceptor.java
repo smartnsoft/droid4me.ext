@@ -57,7 +57,7 @@ import com.smartnsoft.droid4me.ws.WebServiceClient.CallException;
  * This class requires the Android Support Library v4.
  * </p>
  * 
- * @author Édouard Mercier
+ * @author ï¿½douard Mercier
  * @since 2014.06.13
  */
 public abstract class LoadingAndErrorInterceptor
@@ -494,6 +494,11 @@ public abstract class LoadingAndErrorInterceptor
           smartableFragment.refreshBusinessObjectsAndDisplay(true, null, false);
         }
       });
+    }
+
+    public void showBusinessObjectUnavailableException(Activity activity, final Smartable<?> smartableFragment, BusinessObjectUnavailableException exception, Runnable runnable)
+    {
+      loadingErrorAndRetryAttributes.showIssue(activity, smartableFragment, exception, runnable);
     }
 
     public void showException(Activity activity, final Smartable<?> smartable, Throwable throwable, Runnable onRetry)
