@@ -23,7 +23,7 @@ import android.content.res.Resources.Theme;
 
 /**
  * A extension point for resources taken from an external .apk files.
- * 
+ *
  * @author Édouard Mercier
  * @since 2013.08.07
  */
@@ -42,7 +42,7 @@ public class ExtendedResourceWrapper
     {
       try
       {
-        final AssetManager newAssets = (AssetManager) AssetManager.class.newInstance();
+        final AssetManager newAssets = AssetManager.class.newInstance();
         newAssets.getClass().getMethod("addAssetPath", String.class).invoke(newAssets, apkFilePath.getAbsolutePath());
         assets = newAssets;
       }

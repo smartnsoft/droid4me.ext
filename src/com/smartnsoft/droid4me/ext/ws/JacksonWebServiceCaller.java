@@ -27,11 +27,19 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.zip.GZIPInputStream;
-
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import com.smartnsoft.droid4me.ws.WebServiceCaller;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -44,18 +52,9 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.smartnsoft.droid4me.ws.WebServiceCaller;
-
 /**
  * A web service which is supported by Jackson.
- * 
+ *
  * @author Édouard Mercier
  * @since 2013.07.21
  */
@@ -224,7 +223,8 @@ public abstract class JacksonWebServiceCaller
 
   private final boolean acceptGzip;
 
-  protected JacksonWebServiceCaller(int connectionTimeOutInMilliseconds, int socketTimeOutInMilliseconds, boolean acceptGzip)
+  protected JacksonWebServiceCaller(int connectionTimeOutInMilliseconds, int socketTimeOutInMilliseconds,
+      boolean acceptGzip)
   {
     this.connectionTimeOutInMilliseconds = connectionTimeOutInMilliseconds;
     this.socketTimeOutInMilliseconds = socketTimeOutInMilliseconds;
@@ -266,7 +266,7 @@ public abstract class JacksonWebServiceCaller
 
   /**
    * Responsible for creating the Jackson object mapper.
-   * 
+   *
    * @return a valid object mapper, which can be customized
    */
   protected ObjectMapper computeObjectMapper()
@@ -301,8 +301,7 @@ public abstract class JacksonWebServiceCaller
       throws IOException
   {
     prepareObjectMapper();
-    @SuppressWarnings("unchecked")
-    final ContentType businessObject = (ContentType) objectMapper.readValue(jsonString, valueType);
+    @SuppressWarnings("unchecked") final ContentType businessObject = (ContentType) objectMapper.readValue(jsonString, valueType);
     return businessObject;
   }
 
@@ -334,7 +333,8 @@ public abstract class JacksonWebServiceCaller
   }
 
   @SuppressWarnings("unchecked")
-  protected <ContentType> ContentType deserializeJson(InputStream inputStream, TypeReference<?> typeReference, Class<?> theClass, JavaType javaType)
+  protected <ContentType> ContentType deserializeJson(InputStream inputStream, TypeReference<?> typeReference,
+      Class<?> theClass, JavaType javaType)
       throws JacksonParsingException
   {
     prepareObjectMapper();

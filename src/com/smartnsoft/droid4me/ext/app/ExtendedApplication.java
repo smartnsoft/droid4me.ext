@@ -29,7 +29,7 @@ import dalvik.system.DexClassLoader;
 
 /**
  * An application class which enables to help loading dynamically DEX code, and resources from .apk files.
- * 
+ *
  * @author Édouard Mercier
  * @since 2013.08.06
  */
@@ -82,8 +82,7 @@ public abstract class ExtendedApplication
     public T get()
         throws IllegalAccessException, IllegalArgumentException
     {
-      @SuppressWarnings("unchecked")
-      final T fieldObject = (T) field.get(object);
+      @SuppressWarnings("unchecked") final T fieldObject = (T) field.get(object);
       return fieldObject;
     }
 

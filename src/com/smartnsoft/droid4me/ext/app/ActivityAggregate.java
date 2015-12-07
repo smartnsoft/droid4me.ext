@@ -73,7 +73,8 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    *
    * @param fragmentClass
    */
-  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState, Bundle arguments)
+  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState,
+      Bundle arguments)
   {
     openFragment(fragmentClass, activityAnnotation.fragmentContainerIdentifier(), null, activity.getIntent().getExtras());
   }
@@ -84,7 +85,8 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    * @param fragmentClass
    * @param arguments
    */
-  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, int fragmentContainerIdentifer, SavedState savedState, Bundle arguments)
+  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, int fragmentContainerIdentifer,
+      SavedState savedState, Bundle arguments)
   {
     try
     {

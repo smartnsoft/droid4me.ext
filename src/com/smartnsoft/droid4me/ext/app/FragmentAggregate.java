@@ -21,7 +21,7 @@ import com.smartnsoft.droid4me.support.v4.app.SmartFragment;
 public abstract class FragmentAggregate<SmartApplicationClass extends SmartApplication, SmartActivityClass extends Activity>
 {
 
-  public static interface OnBackPressedListener
+  public interface OnBackPressedListener
   {
 
     boolean onBackPressed();
@@ -112,7 +112,6 @@ public abstract class FragmentAggregate<SmartApplicationClass extends SmartAppli
 
   /**
    * Open the specified fragment, the previous fragment is add to the back stack.
-   * 
    */
   public final void openChildFragment(SmartFragment<?> parentFragment, @IdRes int fragmentPlaceholderIdentifier,
       Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState)

@@ -23,7 +23,7 @@ import android.content.res.Resources.Theme;
 
 /**
  * A configuration class when loading resources from external .apk files.
- * 
+ *
  * @author Édouard Mercier
  * @since 2013.08.07
  */
