@@ -164,7 +164,7 @@ public abstract class JacksonHttpClientWebServiceCaller
 
   }
 
-  protected final JacksonParser jacksonParser;
+  public final JacksonParser jacksonParser;
 
   private final int connectionTimeOutInMilliseconds;
 

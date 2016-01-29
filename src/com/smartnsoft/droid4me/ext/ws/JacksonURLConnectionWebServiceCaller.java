@@ -37,7 +37,7 @@ public abstract class JacksonURLConnectionWebServiceCaller
     implements ObjectMapperComputer
 {
 
-  protected final JacksonParser jacksonParser;
+  public final JacksonParser jacksonParser;
 
   private final int readTimeOutInMilliseconds;
 
