@@ -6,7 +6,7 @@ import android.support.v4.app.Fragment.SavedState;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.smartnsoft.droid4me.app.SmartApplication;
@@ -73,7 +73,8 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    *
    * @param fragmentClass
    */
-  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState, Bundle arguments)
+  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState,
+      Bundle arguments)
   {
     openFragment(fragmentClass, activityAnnotation.fragmentContainerIdentifier(), null, activity.getIntent().getExtras());
   }
@@ -84,7 +85,8 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    * @param fragmentClass
    * @param arguments
    */
-  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, int fragmentContainerIdentifer, SavedState savedState, Bundle arguments)
+  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, int fragmentContainerIdentifer,
+      SavedState savedState, Bundle arguments)
   {
     try
     {
@@ -127,10 +129,10 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
     {
       activity.setContentView(activityAnnotation.contentViewIdentifier());
       final int toolbarIdentifier = activityAnnotation.toolbarIdentifier();
-      if (toolbarIdentifier > 0 && activity instanceof ActionBarActivity)
+      if (toolbarIdentifier > 0 && activity instanceof AppCompatActivity)
       {
         final Toolbar toolbar = (Toolbar) activity.findViewById(toolbarIdentifier);
-        ((ActionBarActivity) activity).setSupportActionBar(toolbar);
+        ((AppCompatActivity) activity).setSupportActionBar(toolbar);
       }
       setActionBarBehavior();
       if (activity instanceof FragmentActivity)

@@ -47,31 +47,31 @@ import com.smartnsoft.droid4me.ws.WebServiceClient.CallException;
  * declare the entity {@link AppPublics.SendLoadingIntentAnnotation} annotation, so that loading events are triggered;</li>
  * <li>the display of errors.</li>
  * </ol>
- * 
+ * <p/>
  * <p>
  * Caution: in order to have this interceptor working, you need to make sure that the entity (deriving hence from {@link Smartable}) uses a template
  * type implementing the {@link LoadingErrorAndRetryAggregateProvider} interface.
  * </p>
- * 
+ * <p/>
  * <p>
  * This class requires the Android Support Library v4.
  * </p>
- * 
- * @author Édouard Mercier
+ *
+ * @author ï¿½douard Mercier
  * @since 2014.06.13
  */
 public abstract class LoadingAndErrorInterceptor
     implements ActivityController.Interceptor
 {
 
-  public static interface BusinessObjectUnavailableReporter<FragmentAggregateClass extends FragmentAggregate<?, ?>>
+  public interface BusinessObjectUnavailableReporter<FragmentAggregateClass extends FragmentAggregate<?, ?>>
   {
 
     void reportBusinessObjectUnavailableException(Smartable<FragmentAggregateClass> smartableFragment,
         BusinessObjectUnavailableException businessObjectUnavailableException);
   }
 
-  public static interface ErrorAndRetryManagerProvider
+  public interface ErrorAndRetryManagerProvider
   {
 
     ErrorAndRetryManager getErrorAndRetryManager(View view);
@@ -92,7 +92,7 @@ public abstract class LoadingAndErrorInterceptor
 
   }
 
-  public static interface LoadingErrorAndRetryAggregateProvider
+  public interface LoadingErrorAndRetryAggregateProvider
   {
 
     LoadingErrorAndRetryAggregate getLoadingErrorAndRetryAggregate();
@@ -101,14 +101,15 @@ public abstract class LoadingAndErrorInterceptor
 
   }
 
-  public static interface DoNotHideLoadingNextTime
+  public interface DoNotHideLoadingNextTime
   {
+
   }
 
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
   @Inherited
-  public static @interface LoadingAndErrorAnnotation
+  public @interface LoadingAndErrorAnnotation
   {
 
     boolean enabled() default true;
@@ -161,7 +162,7 @@ public abstract class LoadingAndErrorInterceptor
 
   }
 
-  public static interface ErrorAndRetryManager
+  public interface ErrorAndRetryManager
   {
 
     void showError(final Activity activity, Throwable throwable, boolean fromGuiThread, final Runnable onCompletion);
@@ -299,7 +300,7 @@ public abstract class LoadingAndErrorInterceptor
           {
             if (currentIssue instanceof CallException)
             {
-              text.setText(((CallException) currentIssue).getMessage());
+              text.setText(currentIssue.getMessage());
             }
             else
             {
@@ -345,7 +346,8 @@ public abstract class LoadingAndErrorInterceptor
     /**
      * It is required to invoke that method from the UI thread!
      */
-    public void showIssue(Activity activity, final Smartable<?> smartable, Throwable throwable, final Runnable onCompletion)
+    public void showIssue(Activity activity, final Smartable<?> smartable, Throwable throwable,
+        final Runnable onCompletion)
     {
       // System.out.println("showError" + Thread.currentThread().getName());
       isHandlingError = true;
@@ -420,8 +422,8 @@ public abstract class LoadingAndErrorInterceptor
 
     private final AtomicReference<BusinessObjectUnavailableException> issue = new AtomicReference<BusinessObjectUnavailableException>();
 
-    public final void onCreate(final ErrorAndRetryManagerProvider errorAndRetryAttributesProvider, Activity activity, final Smartable<?> smartable,
-        BusinessObjectUnavailableException issue, boolean handleLoading)
+    public final void onCreate(final ErrorAndRetryManagerProvider errorAndRetryAttributesProvider, Activity activity,
+        final Smartable<?> smartable, BusinessObjectUnavailableException issue, boolean handleLoading)
     {
       this.issue.set(issue);
       if (handleLoading == true)
@@ -484,7 +486,8 @@ public abstract class LoadingAndErrorInterceptor
       displayLoadingViewNextTime = false;
     }
 
-    public void showBusinessObjectUnavailableException(Activity activity, final Smartable<?> smartableFragment, BusinessObjectUnavailableException exception)
+    public void showBusinessObjectUnavailableException(Activity activity, final Smartable<?> smartableFragment,
+        BusinessObjectUnavailableException exception)
     {
       loadingErrorAndRetryAttributes.showIssue(activity, smartableFragment, exception, new Runnable()
       {
@@ -494,6 +497,12 @@ public abstract class LoadingAndErrorInterceptor
           smartableFragment.refreshBusinessObjectsAndDisplay(true, null, false);
         }
       });
+    }
+
+    public void showBusinessObjectUnavailableException(Activity activity, final Smartable<?> smartableFragment,
+        BusinessObjectUnavailableException exception, Runnable runnable)
+    {
+      loadingErrorAndRetryAttributes.showIssue(activity, smartableFragment, exception, runnable);
     }
 
     public void showException(Activity activity, final Smartable<?> smartable, Throwable throwable, Runnable onRetry)
@@ -530,16 +539,14 @@ public abstract class LoadingAndErrorInterceptor
         final BusinessObjectsUnavailableExceptionKeeper businessObjectsUnavailableExceptionKeeper = smartable.getAggregate().getBusinessUnavailableExceptionKeeper();
         if (interceptorEvent == InterceptorEvent.onCreate)
         {
-          aggregate.onCreate(errorAndRetryAttributesProvider, activity, smartable, businessObjectsUnavailableExceptionKeeper.getException(),
-              loadingAndErrorAnnotation.loadingEnabled() == true);
+          aggregate.onCreate(errorAndRetryAttributesProvider, activity, smartable, businessObjectsUnavailableExceptionKeeper.getException(), loadingAndErrorAnnotation.loadingEnabled() == true);
         }
         else if (interceptorEvent == InterceptorEvent.onStart)
         {
           final View view;
           if (component != null)
           {
-            view = component instanceof android.support.v4.app.Fragment ? ((android.support.v4.app.Fragment) component).getView()
-                : ((android.app.Fragment) component).getView();
+            view = component instanceof android.support.v4.app.Fragment ? ((android.support.v4.app.Fragment) component).getView() : ((android.app.Fragment) component).getView();
           }
           else
           {

@@ -43,7 +43,7 @@ public class SmartRowListAdapter<ViewClass extends View>
     extends SmartListAdapter<ViewClass>
 {
 
-  public static interface ColumnsIndicator
+  public interface ColumnsIndicator
   {
 
     int getColumnsCount(int row);
@@ -152,7 +152,8 @@ public class SmartRowListAdapter<ViewClass extends View>
       this.linearLayout = linearLayout;
     }
 
-    public void update(final Activity activity, List<BusinessViewWrapper<BusinessObjectClass>> businessObject, int horizontalPadding, int position)
+    public void update(final Activity activity, List<BusinessViewWrapper<BusinessObjectClass>> businessObject,
+        int horizontalPadding, int position)
     {
       // if (SmartRowListAdapter.DEBUG_LOG_ENABLED == true && log.isDebugEnabled())
       // {
@@ -185,8 +186,7 @@ public class SmartRowListAdapter<ViewClass extends View>
           views[index] = view;
           // All cells will have the same width
           final ViewGroup.LayoutParams viewLayoutParams = view.getLayoutParams();
-          final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, viewLayoutParams != null ? viewLayoutParams.height
-              : LayoutParams.WRAP_CONTENT, 1);
+          final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, viewLayoutParams != null ? viewLayoutParams.height : LayoutParams.WRAP_CONTENT, 1);
           views[index].setFocusable(true);
           views[index].setClickable(true);
           linearLayout.addView(view, layoutParams);
@@ -294,7 +294,8 @@ public class SmartRowListAdapter<ViewClass extends View>
 
     private final int position;
 
-    protected RowBusinessViewWrapper(List<BusinessViewWrapper<BusinessObjectClass>> businessObject, int type, int horizontalPadding, int position)
+    protected RowBusinessViewWrapper(List<BusinessViewWrapper<BusinessObjectClass>> businessObject, int type,
+        int horizontalPadding, int position)
     {
       super(businessObject);
       this.type = type;
@@ -309,7 +310,8 @@ public class SmartRowListAdapter<ViewClass extends View>
     }
 
     @Override
-    protected View createNewView(Activity activity, ViewGroup parent, List<BusinessViewWrapper<BusinessObjectClass>> businessObject)
+    protected View createNewView(Activity activity, ViewGroup parent,
+        List<BusinessViewWrapper<BusinessObjectClass>> businessObject)
     {
       final LinearLayout linearLayout = new RowLinearLayout(activity.getApplicationContext(), position);
       linearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -317,14 +319,16 @@ public class SmartRowListAdapter<ViewClass extends View>
     }
 
     @Override
-    protected Object extractNewViewAttributes(Activity activity, View view, List<BusinessViewWrapper<BusinessObjectClass>> businessObject)
+    protected Object extractNewViewAttributes(Activity activity, View view,
+        List<BusinessViewWrapper<BusinessObjectClass>> businessObject)
     {
       return new RowBusinessViewAttributes<BusinessObjectClass>((RowLinearLayout) view);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void updateView(Activity activity, Object viewAttributes, View view, List<BusinessViewWrapper<BusinessObjectClass>> businessObject, int position)
+    protected void updateView(Activity activity, Object viewAttributes, View view,
+        List<BusinessViewWrapper<BusinessObjectClass>> businessObject, int position)
     {
       ((RowBusinessViewAttributes<BusinessObjectClass>) viewAttributes).update(activity, businessObject, horizontalPadding, position);
     }
@@ -346,7 +350,8 @@ public class SmartRowListAdapter<ViewClass extends View>
 
   public static boolean DEBUG_LOG_ENABLED = false;
 
-  public static int getRow(int position, ColumnsIndicator columnsIndicator, AtomicInteger lastRowPosition, AtomicInteger lastRowColumnsCount)
+  public static int getRow(int position, ColumnsIndicator columnsIndicator, AtomicInteger lastRowPosition,
+      AtomicInteger lastRowColumnsCount)
   {
     lastRowPosition.set(position);
     int currentPosition = 0;
@@ -398,7 +403,8 @@ public class SmartRowListAdapter<ViewClass extends View>
     super.setAdapter(listView);
   }
 
-  public List<BusinessViewWrapper<?>> convertWrappers(List<? extends BusinessViewWrapper<?>> wrappers, ColumnsIndicator columnsIndicator)
+  public List<BusinessViewWrapper<?>> convertWrappers(List<? extends BusinessViewWrapper<?>> wrappers,
+      ColumnsIndicator columnsIndicator)
   {
     final List<BusinessViewWrapper<?>> conversiondWrappers = new ArrayList<BusinessViewWrapper<?>>();
     if (wrappers != null && wrappers.size() >= 1)
@@ -438,8 +444,7 @@ public class SmartRowListAdapter<ViewClass extends View>
           }
           types.put(totalType, canonicalType);
         }
-        conversiondWrappers.add(getRowBusinessViewWrapper(rowWrappers, canonicalType, columnsIndicator.getHorizontalPaddingForRow(row),
-            conversiondWrappers.size() - 1));
+        conversiondWrappers.add(getRowBusinessViewWrapper(rowWrappers, canonicalType, columnsIndicator.getHorizontalPaddingForRow(row), conversiondWrappers.size() - 1));
         if (index >= wrappers.size())
         {
           break;
@@ -451,8 +456,8 @@ public class SmartRowListAdapter<ViewClass extends View>
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  protected RowBusinessViewWrapper<?> getRowBusinessViewWrapper(List<BusinessViewWrapper<?>> rowWrappers, Integer canonicalType, int horizontalPadding,
-      int position)
+  protected RowBusinessViewWrapper<?> getRowBusinessViewWrapper(List<BusinessViewWrapper<?>> rowWrappers,
+      Integer canonicalType, int horizontalPadding, int position)
   {
     return new RowBusinessViewWrapper(rowWrappers, canonicalType, horizontalPadding, position);
   }

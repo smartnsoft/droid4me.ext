@@ -55,6 +55,7 @@ import org.apache.http.protocol.HTTP;
  * @author Édouard Mercier
  * @since 2013.07.21
  */
+@Deprecated
 public abstract class JacksonHttpClientWebServiceCaller
     extends HttpClientWebServiceCaller
     implements ObjectMapperComputer

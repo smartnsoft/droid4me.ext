@@ -19,7 +19,7 @@ import com.smartnsoft.droid4me.log.LoggerFactory;
 
 /**
  * Wraps the sensor and provides a standard way to catch events.
- * 
+ *
  * @author Édouard Mercier
  * @since 2009.05.29
  */
@@ -27,7 +27,7 @@ import com.smartnsoft.droid4me.log.LoggerFactory;
 public final class SensorHelper
 {
 
-  public static interface OnWristShakeListener
+  public interface OnWristShakeListener
   {
 
     void onShake(boolean value);
