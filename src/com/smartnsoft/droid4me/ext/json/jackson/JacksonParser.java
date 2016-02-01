@@ -32,7 +32,7 @@ public final class JacksonParser
     this.objectMapperComputer = objectMapperComputer;
   }
 
-  protected final ObjectMapper getObjectMapper()
+  public final ObjectMapper getObjectMapper()
   {
     prepareObjectMapper();
     return objectMapper;
