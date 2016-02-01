@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2009-2013 Smart&Soft SAS (http://www.smartnsoft.com/) and contributors.
+ * (C) Copyright 2009-2016 Smart&Soft SAS (http://www.smartnsoft.com/) and contributors.
  *
  * The code hereby is the full property of Smart&Soft, SIREN 444 622 690.
  * 34, boulevard des Italiens - 75009 - Paris - France
