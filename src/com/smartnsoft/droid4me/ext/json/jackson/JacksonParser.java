@@ -90,7 +90,7 @@ public final class JacksonParser
   }
 
   @SuppressWarnings("unchecked")
-  protected <ContentType> ContentType deserializeJson(InputStream inputStream, TypeReference<?> typeReference,
+  public <ContentType> ContentType deserializeJson(InputStream inputStream, TypeReference<?> typeReference,
       Class<?> theClass, JavaType javaType)
       throws JacksonParsingException
   {
