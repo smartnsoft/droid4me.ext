@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
+import android.support.v7.widget.Toolbar;
 
 import com.smartnsoft.droid4me.support.v4.app.SmartFragment;
 
@@ -56,12 +57,22 @@ public final class ActivityAnnotations
      * @return the 'view holder' identifier to be used to place the {@link android.app.Fragment} defined by the
      * {@link ActivityAnnotation#fragmentClass()}.
      */
-    @IdRes int fragmentContainerIdentifier();
+    @IdRes int fragmentContainerIdentifier() default -1;
 
     /**
      * @return the fragment class to be instanciate and displayed in the {@link ActivityAnnotation#fragmentContainerIdentifier()} view holder.
      */
-    Class<? extends SmartFragment<?>> fragmentClass();
+    Class<? extends SmartFragment<?>> fragmentClass() default AbsSmartFragment.class;
+
+    /**
+     * @return if the fragment referred into the {@link ActivityAnnotation#fragmentClass()} should be added to the backStack or not.
+     */
+    boolean addFragmentToBackStack() default false;
+
+    /**
+     * @return the name of the fragment if it is add to the backStack.
+     */
+    String fragmentBackStackName() default "";
 
     /**
      * @return the {@link ActionBar} "home" button action behavior
