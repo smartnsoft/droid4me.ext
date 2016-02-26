@@ -2,6 +2,8 @@ package com.smartnsoft.droid4me.ext.app;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment.SavedState;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -55,7 +57,7 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    */
   public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass)
   {
-    openFragment(fragmentClass, activityAnnotation.fragmentContainerIdentifier(), null, activity.getIntent().getExtras());
+    openFragment(fragmentClass, activityAnnotation.fragmentContainerIdentifier(), activityAnnotation.addFragmentToBackStack(), activityAnnotation.fragmentBackStackName(), null, activity.getIntent().getExtras());
   }
 
   /**
@@ -63,9 +65,10 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    *
    * @param fragmentClass
    */
-  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, int fragmentContainerIdentifer)
+  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, @IdRes int fragmentContainerIdentifer,
+      boolean addFragmentToBackStack, @Nullable String fragmentBackStackName)
   {
-    openFragment(fragmentClass, fragmentContainerIdentifer, null, activity.getIntent().getExtras());
+    openFragment(fragmentClass, fragmentContainerIdentifer, addFragmentToBackStack, fragmentBackStackName, null, activity.getIntent().getExtras());
   }
 
   /**
@@ -76,7 +79,7 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
   public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState,
       Bundle arguments)
   {
-    openFragment(fragmentClass, activityAnnotation.fragmentContainerIdentifier(), null, activity.getIntent().getExtras());
+    openFragment(fragmentClass, activityAnnotation.fragmentContainerIdentifier(), activityAnnotation.addFragmentToBackStack(), activityAnnotation.fragmentBackStackName(), null, activity.getIntent().getExtras());
   }
 
   /**
@@ -85,8 +88,8 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
    * @param fragmentClass
    * @param arguments
    */
-  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, int fragmentContainerIdentifer,
-      SavedState savedState, Bundle arguments)
+  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, @IdRes int fragmentContainerIdentifer,
+      boolean addFragmentToBackStack, @Nullable String fragmentBackStackName, SavedState savedState, Bundle arguments)
   {
     try
     {
@@ -101,6 +104,12 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
 
       final FragmentTransaction fragmentTransaction = ((FragmentActivity) activity).getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(fragmentContainerIdentifer, fragment);
+
+      if (addFragmentToBackStack == true)
+      {
+        fragmentTransaction.addToBackStack(fragmentBackStackName);
+      }
+
       fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
       fragmentTransaction.commitAllowingStateLoss();
     }
@@ -149,9 +158,12 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
 
   protected void openParameterFragment()
   {
-    if (activityAnnotation != null && activityAnnotation.fragmentClass() != null)
+    if (activityAnnotation != null)
     {
-      openFragment(activityAnnotation.fragmentClass());
+      if (activityAnnotation.fragmentClass() != AbsSmartFragment.class && activityAnnotation.fragmentContainerIdentifier() != -1)
+      {
+        openFragment(activityAnnotation.fragmentClass());
+      }
     }
   }
 
