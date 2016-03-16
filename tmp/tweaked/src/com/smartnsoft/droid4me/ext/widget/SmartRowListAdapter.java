@@ -36,7 +36,7 @@ import com.smartnsoft.droid4me.log.Logger;
 import com.smartnsoft.droid4me.log.LoggerFactory;
 
 /**
- * @author ɉdouard Mercier
+ * @author Édouard Mercier
  * @since 2013.03.20
  */
 public class SmartRowListAdapter<ViewClass extends View>
@@ -52,7 +52,7 @@ public class SmartRowListAdapter<ViewClass extends View>
 
   }
 
-  public abstract static class HorizontalPaddingColumnsIndicator
+  public static abstract class HorizontalPaddingColumnsIndicator
       implements ColumnsIndicator
   {
 
@@ -91,7 +91,7 @@ public class SmartRowListAdapter<ViewClass extends View>
 
   }
 
-  private final static class EmptyAttributes
+  private static final class EmptyAttributes
   {
 
     public EmptyAttributes(View view)
@@ -100,7 +100,7 @@ public class SmartRowListAdapter<ViewClass extends View>
 
   }
 
-  public final static class EmptyWrapper
+  public static final class EmptyWrapper
       extends BusinessViewWrapper<Integer>
   {
 
@@ -140,7 +140,7 @@ public class SmartRowListAdapter<ViewClass extends View>
 
   }
 
-  private final static class RowBusinessViewAttributes<BusinessObjectClass>
+  private static final class RowBusinessViewAttributes<BusinessObjectClass>
   {
 
     private final RowLinearLayout linearLayout;
@@ -238,7 +238,7 @@ public class SmartRowListAdapter<ViewClass extends View>
 
   }
 
-  private final static class RowLinearLayout
+  private static final class RowLinearLayout
       extends LinearLayout
   {
 
@@ -259,7 +259,7 @@ public class SmartRowListAdapter<ViewClass extends View>
     {
       RowLinearLayout.requestLayoutCount++;
       super.requestLayout();
-      if (SmartRowListAdapter.DEBUG_LOG_ENABLED == true && log.isDebugEnabled())
+      if (SmartRowListAdapter.DEBUG_LOG_ENABLED == true && log.isDebugEnabled() == true)
       {
         log.debug("[" + RowLinearLayout.requestLayoutCount + ", position=" + position + "] 'requestLayout()' invoked on '" + this.toString() + "'");
       }
