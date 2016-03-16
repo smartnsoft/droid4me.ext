@@ -25,6 +25,7 @@ public abstract class FragmentAggregate<SmartApplicationClass extends SmartAppli
   {
 
     boolean onBackPressed();
+
   }
 
   protected final static Logger log = LoggerFactory.getInstance(FragmentAggregate.class);

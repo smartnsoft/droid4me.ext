@@ -171,7 +171,7 @@ public abstract class LoadingAndErrorInterceptor
 
   }
 
-  private final static class LoadingErrorAndRetryAttributes
+  private static final class LoadingErrorAndRetryAttributes
   {
 
     private final View containerView;
@@ -413,7 +413,7 @@ public abstract class LoadingAndErrorInterceptor
 
   }
 
-  public final static class LoadingErrorAndRetryAggregate
+  public static final class LoadingErrorAndRetryAggregate
   {
 
     private boolean displayLoadingViewNextTime = true;

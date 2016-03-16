@@ -49,7 +49,7 @@ public abstract class JacksonExceptions
 
   }
 
-  public final static class JacksonJsonParsingException
+  public static final class JacksonJsonParsingException
       extends JacksonParsingException
   {
 

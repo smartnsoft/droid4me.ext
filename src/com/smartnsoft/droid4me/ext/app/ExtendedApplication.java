@@ -37,7 +37,7 @@ public abstract class ExtendedApplication
     extends SmartApplication
 {
 
-  private final static class FieldWrapper<T>
+  private static final class FieldWrapper<T>
   {
 
     private final Object object;
@@ -97,7 +97,7 @@ public abstract class ExtendedApplication
   /**
    * Largely inspired from https://github.com/Rookery/AndroidDynamicLoader.
    */
-  public final static class WrappedClassLoader
+  public static final class WrappedClassLoader
       extends ClassLoader
   {
 

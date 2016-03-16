@@ -52,7 +52,7 @@ public class SmartRowListAdapter<ViewClass extends View>
 
   }
 
-  public abstract static class HorizontalPaddingColumnsIndicator
+  public static abstract class HorizontalPaddingColumnsIndicator
       implements ColumnsIndicator
   {
 
