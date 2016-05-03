@@ -6,6 +6,7 @@ import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment.SavedState;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +26,7 @@ import com.smartnsoft.droid4me.support.v4.app.SmartFragment;
  * @since 2014.04.08
  */
 public abstract class ActivityAggregate<SmartApplicationClass extends SmartApplication>
+  implements FragmentManager.OnBackStackChangedListener
 {
 
   protected final static Logger log = LoggerFactory.getInstance(ActivityAggregate.class);
@@ -42,6 +44,11 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
     this.activity = activity;
     this.smartable = smartable;
     this.activityAnnotation = activityAnnotation;
+
+    if (this.activity instanceof FragmentActivity)
+    {
+      ((FragmentActivity) activity).getSupportFragmentManager().addOnBackStackChangedListener(this);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -264,4 +271,11 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
     }
   }
 
+  @Override
+  public void onBackStackChanged()
+  {
+    final FragmentManager supportFragmentManager = ((FragmentActivity) activity).getSupportFragmentManager();
+    final String tag = supportFragmentManager.getBackStackEntryAt(supportFragmentManager.getBackStackEntryCount() - 1).getName();
+    fragment = (SmartFragment<?>) supportFragmentManager.findFragmentByTag(tag);
+  }
 }
