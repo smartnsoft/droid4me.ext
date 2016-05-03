@@ -39,6 +39,10 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
 
   protected SmartFragment<?> fragment;
 
+  private SmartFragment<?> lastBackstackFragment;
+
+  private int lastBackstackCount;
+
   public ActivityAggregate(Activity activity, Smartable<?> smartable, ActivityAnnotation activityAnnotation)
   {
     this.activity = activity;
@@ -47,7 +51,8 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
 
     if (this.activity instanceof FragmentActivity)
     {
-      ((FragmentActivity) activity).getSupportFragmentManager().addOnBackStackChangedListener(this);
+      final FragmentActivity fragmentActivity = (FragmentActivity) this.activity;
+      fragmentActivity.getSupportFragmentManager().addOnBackStackChangedListener(this);
     }
   }
 
@@ -110,11 +115,15 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
       }
 
       final FragmentTransaction fragmentTransaction = ((FragmentActivity) activity).getSupportFragmentManager().beginTransaction();
-      fragmentTransaction.replace(fragmentContainerIdentifer, fragment);
 
       if (addFragmentToBackStack == true)
       {
+        fragmentTransaction.replace(fragmentContainerIdentifer, fragment, fragmentBackStackName);
         fragmentTransaction.addToBackStack(fragmentBackStackName);
+      }
+      else
+      {
+        fragmentTransaction.replace(fragmentContainerIdentifer, fragment);
       }
 
       fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -274,8 +283,32 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
   @Override
   public void onBackStackChanged()
   {
-    final FragmentManager supportFragmentManager = ((FragmentActivity) activity).getSupportFragmentManager();
-    final String tag = supportFragmentManager.getBackStackEntryAt(supportFragmentManager.getBackStackEntryCount() - 1).getName();
-    fragment = (SmartFragment<?>) supportFragmentManager.findFragmentByTag(tag);
+    if (this.activity instanceof FragmentActivity)
+    {
+      final FragmentManager fragmentManager = ((FragmentActivity) this.activity).getSupportFragmentManager();
+      final int newCount = fragmentManager.getBackStackEntryCount();
+
+      // Fragment just restored from backstack
+      if (newCount < lastBackstackCount)
+      {
+        fragment = lastBackstackFragment;
+      }
+
+      // Save the new backstack count
+      lastBackstackCount = newCount;
+      // Save the new (last) backstack fragment
+      if (newCount > 0)
+      {
+        final String tag = fragmentManager.getBackStackEntryAt(newCount - 1).getName();
+        if (tag != null)
+        {
+          lastBackstackFragment = (SmartFragment) fragmentManager.findFragmentByTag(tag);
+        }
+      }
+      else
+      {
+        lastBackstackFragment = null;
+      }
+    }
   }
 }
