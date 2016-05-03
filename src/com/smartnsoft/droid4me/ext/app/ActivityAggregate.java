@@ -47,7 +47,7 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
 
     if (this.activity instanceof FragmentActivity)
     {
-      ((FragmentActivity) activity).getSupportFragmentManager().addOnBackStackChangedListener(this);
+      ((FragmentActivity) this.activity).getSupportFragmentManager().addOnBackStackChangedListener(this);
     }
   }
 
