@@ -297,17 +297,13 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
       // Save the new backstack count
       lastBackstackCount = newCount;
       // Save the new (last) backstack fragment
-      if (newCount > 0)
+      if (newCount > 1)
       {
-        final String tag = fragmentManager.getBackStackEntryAt(newCount - 1).getName();
+        final String tag = fragmentManager.getBackStackEntryAt(newCount - 2).getName();
         if (tag != null)
         {
           lastBackstackFragment = (SmartFragment) fragmentManager.findFragmentByTag(tag);
         }
-      }
-      else
-      {
-        lastBackstackFragment = null;
       }
     }
   }
