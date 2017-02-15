@@ -26,8 +26,13 @@ import com.smartnsoft.droid4me.support.v4.app.SmartFragment;
  * @since 2014.04.08
  */
 public abstract class ActivityAggregate<SmartApplicationClass extends SmartApplication>
-  implements FragmentManager.OnBackStackChangedListener
+    implements FragmentManager.OnBackStackChangedListener
 {
+
+  public enum FragmentTransactionType
+  {
+    Add, Replace
+  }
 
   protected final static Logger log = LoggerFactory.getInstance(ActivityAggregate.class);
 
@@ -63,45 +68,66 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
   }
 
   /**
-   * Open the specified fragment, the previous fragment is add to the back stack.
+   * Replaces the current fragment by the specified fragment one.
+   * Reads the activity annotation in order to add it or not to the backstack.
+   * The fragment is opened with the extras of the activity as its arguments.
    *
-   * @param fragmentClass
+   * @param fragmentClass the fragment to open
    */
-  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass)
+  public final void replaceFragment(Class<? extends SmartFragment<?>> fragmentClass)
   {
-    openFragment(fragmentClass, activityAnnotation.fragmentContainerIdentifier(), activityAnnotation.addFragmentToBackStack(), activityAnnotation.fragmentBackStackName(), null, activity.getIntent().getExtras());
+    addOrReplaceFragment(fragmentClass, activityAnnotation.fragmentContainerIdentifier(),
+        activityAnnotation.addFragmentToBackStack(), activityAnnotation.fragmentBackStackName(), null,
+        activity.getIntent().getExtras(), FragmentTransactionType.Replace);
   }
 
   /**
-   * Open the specified fragment, the previous fragment is add to the back stack.
+   * Replaces the current fragment by the specified fragment one.
+   * The fragment is opened with the extras of the activity as its arguments.
    *
-   * @param fragmentClass
+   * @param fragmentClass              the fragment to open
+   * @param fragmentContainerIdentifer the identifier of the container whose fragment is to be replaced.
+   * @param addFragmentToBackStack     indicates wether the fragment should be added to the backstack
+   * @param fragmentBackStackName      the name of the fragment into the backstack if it should added
    */
-  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, @IdRes int fragmentContainerIdentifer,
+  public final void replaceFragment(Class<? extends SmartFragment<?>> fragmentClass,
+      @IdRes int fragmentContainerIdentifer,
       boolean addFragmentToBackStack, @Nullable String fragmentBackStackName)
   {
-    openFragment(fragmentClass, fragmentContainerIdentifer, addFragmentToBackStack, fragmentBackStackName, null, activity.getIntent().getExtras());
+    addOrReplaceFragment(fragmentClass, fragmentContainerIdentifer, addFragmentToBackStack, fragmentBackStackName, null,
+        activity.getIntent().getExtras(), FragmentTransactionType.Replace);
   }
 
   /**
-   * Open the specified fragment, the previous fragment is add to the back stack.
+   * Replaces the current fragment by the specified fragment one.
+   * Reads the activity annotation in order to add it or not to the backstack.
    *
-   * @param fragmentClass
+   * @param fragmentClass the fragment to open
+   * @param savedState    the initial saved state of the fragment
+   * @param arguments     the arguments of the fragment
    */
-  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState,
+  public final void replaceFragment(Class<? extends SmartFragment<?>> fragmentClass, SavedState savedState,
       Bundle arguments)
   {
-    openFragment(fragmentClass, activityAnnotation.fragmentContainerIdentifier(), activityAnnotation.addFragmentToBackStack(), activityAnnotation.fragmentBackStackName(), null, activity.getIntent().getExtras());
+    addOrReplaceFragment(fragmentClass, activityAnnotation.fragmentContainerIdentifier(),
+        activityAnnotation.addFragmentToBackStack(), activityAnnotation.fragmentBackStackName(), savedState,
+        arguments, FragmentTransactionType.Replace);
   }
 
   /**
-   * Open the specified fragment, the previous fragment is add to the back stack.
+   * Adds or replaces the current fragment by the specified fragment one.
    *
-   * @param fragmentClass
-   * @param arguments
+   * @param fragmentClass              the fragment to open
+   * @param fragmentContainerIdentifer the identifier of the container whose fragment is to be replaced.
+   * @param addFragmentToBackStack     indicates wether the fragment should be added to the backstack
+   * @param fragmentBackStackName      the name of the fragment into the backstack if it should added
+   * @param savedState                 the initial saved state of the fragment
+   * @param arguments                  the arguments of the fragment
    */
-  public final void openFragment(Class<? extends SmartFragment<?>> fragmentClass, @IdRes int fragmentContainerIdentifer,
-      boolean addFragmentToBackStack, @Nullable String fragmentBackStackName, SavedState savedState, Bundle arguments)
+  public final void addOrReplaceFragment(Class<? extends SmartFragment<?>> fragmentClass,
+      @IdRes int fragmentContainerIdentifer,
+      boolean addFragmentToBackStack, @Nullable String fragmentBackStackName, SavedState savedState, Bundle arguments,
+      FragmentTransactionType fragmentTransactionType)
   {
     try
     {
@@ -116,14 +142,20 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
 
       final FragmentTransaction fragmentTransaction = ((FragmentActivity) activity).getSupportFragmentManager().beginTransaction();
 
-      if (addFragmentToBackStack == true)
+      if (fragmentTransactionType == FragmentTransactionType.Replace)
       {
-        fragmentTransaction.replace(fragmentContainerIdentifer, fragment, fragmentBackStackName);
-        fragmentTransaction.addToBackStack(fragmentBackStackName);
+        fragmentTransaction.replace(fragmentContainerIdentifer, fragment,
+            addFragmentToBackStack == true ? fragmentBackStackName : null);
       }
       else
       {
-        fragmentTransaction.replace(fragmentContainerIdentifer, fragment);
+        fragmentTransaction.add(fragmentContainerIdentifer, fragment,
+            addFragmentToBackStack == true ? fragmentBackStackName : null);
+      }
+
+      if (addFragmentToBackStack == true)
+      {
+        fragmentTransaction.addToBackStack(fragmentBackStackName);
       }
 
       fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -163,7 +195,8 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
       if (activity instanceof FragmentActivity)
       {
         final FragmentActivity fragmentActivity = (FragmentActivity) activity;
-        fragment = (SmartFragment<?>) fragmentActivity.getSupportFragmentManager().findFragmentById(activityAnnotation.fragmentContainerIdentifier());
+        fragment = (SmartFragment<?>) fragmentActivity.getSupportFragmentManager().findFragmentById(
+            activityAnnotation.fragmentContainerIdentifier());
         if (fragment == null)
         {
           openParameterFragment();
@@ -178,7 +211,7 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
     {
       if (activityAnnotation.fragmentClass() != AbsSmartFragment.class && activityAnnotation.fragmentContainerIdentifier() != -1)
       {
-        openFragment(activityAnnotation.fragmentClass());
+        replaceFragment(activityAnnotation.fragmentClass());
       }
     }
   }
@@ -194,43 +227,43 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
       final ActionBarTitleBehavior actionBarTitleBehavior = activityAnnotation.actionBarTitleBehavior();
       switch (actionBarTitleBehavior)
       {
-      case UseIcon:
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayUseLogoEnabled(false);
-        actionBar.setDisplayShowHomeEnabled(true);
-        break;
+        case UseIcon:
+          actionBar.setDisplayShowTitleEnabled(false);
+          actionBar.setDisplayUseLogoEnabled(false);
+          actionBar.setDisplayShowHomeEnabled(true);
+          break;
 
-      case UseLogo:
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayUseLogoEnabled(true);
-        actionBar.setDisplayShowHomeEnabled(true);
-        break;
+        case UseLogo:
+          actionBar.setDisplayShowTitleEnabled(false);
+          actionBar.setDisplayUseLogoEnabled(true);
+          actionBar.setDisplayShowHomeEnabled(true);
+          break;
 
-      default:
-      case UseTitle:
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setDisplayUseLogoEnabled(false);
-        actionBar.setDisplayShowHomeEnabled(true);
-        break;
+        default:
+        case UseTitle:
+          actionBar.setDisplayShowTitleEnabled(true);
+          actionBar.setDisplayUseLogoEnabled(false);
+          actionBar.setDisplayShowHomeEnabled(true);
+          break;
       }
       final ActionBarBehavior actionBarUpBehavior = activityAnnotation.actionBarUpBehavior();
       switch (actionBarUpBehavior)
       {
-      case ShowAsUp:
-        actionBar.setHomeButtonEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        break;
+        case ShowAsUp:
+          actionBar.setHomeButtonEnabled(true);
+          actionBar.setDisplayHomeAsUpEnabled(true);
+          break;
 
-      case ShowAsDrawer:
-        actionBar.setHomeButtonEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(false);
-        break;
+        case ShowAsDrawer:
+          actionBar.setHomeButtonEnabled(true);
+          actionBar.setDisplayHomeAsUpEnabled(false);
+          break;
 
-      default:
-      case None:
-        actionBar.setHomeButtonEnabled(false);
-        actionBar.setDisplayHomeAsUpEnabled(false);
-        break;
+        default:
+        case None:
+          actionBar.setHomeButtonEnabled(false);
+          actionBar.setDisplayHomeAsUpEnabled(false);
+          break;
       }
     }
     else if (actionBarObject instanceof android.app.ActionBar)
@@ -239,43 +272,43 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
       final ActionBarTitleBehavior actionBarTitleBehavior = activityAnnotation.actionBarTitleBehavior();
       switch (actionBarTitleBehavior)
       {
-      case UseIcon:
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayUseLogoEnabled(false);
-        actionBar.setDisplayShowHomeEnabled(true);
-        break;
+        case UseIcon:
+          actionBar.setDisplayShowTitleEnabled(false);
+          actionBar.setDisplayUseLogoEnabled(false);
+          actionBar.setDisplayShowHomeEnabled(true);
+          break;
 
-      case UseLogo:
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayUseLogoEnabled(true);
-        actionBar.setDisplayShowHomeEnabled(true);
-        break;
+        case UseLogo:
+          actionBar.setDisplayShowTitleEnabled(false);
+          actionBar.setDisplayUseLogoEnabled(true);
+          actionBar.setDisplayShowHomeEnabled(true);
+          break;
 
-      default:
-      case UseTitle:
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setDisplayUseLogoEnabled(false);
-        actionBar.setDisplayShowHomeEnabled(true);
-        break;
+        default:
+        case UseTitle:
+          actionBar.setDisplayShowTitleEnabled(true);
+          actionBar.setDisplayUseLogoEnabled(false);
+          actionBar.setDisplayShowHomeEnabled(true);
+          break;
       }
       final ActionBarBehavior actionBarUpBehavior = activityAnnotation.actionBarUpBehavior();
       switch (actionBarUpBehavior)
       {
-      case ShowAsUp:
-        actionBar.setHomeButtonEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        break;
+        case ShowAsUp:
+          actionBar.setHomeButtonEnabled(true);
+          actionBar.setDisplayHomeAsUpEnabled(true);
+          break;
 
-      case ShowAsDrawer:
-        actionBar.setHomeButtonEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(false);
-        break;
+        case ShowAsDrawer:
+          actionBar.setHomeButtonEnabled(true);
+          actionBar.setDisplayHomeAsUpEnabled(false);
+          break;
 
-      default:
-      case None:
-        actionBar.setHomeButtonEnabled(false);
-        actionBar.setDisplayHomeAsUpEnabled(false);
-        break;
+        default:
+        case None:
+          actionBar.setHomeButtonEnabled(false);
+          actionBar.setDisplayHomeAsUpEnabled(false);
+          break;
       }
     }
   }
@@ -307,4 +340,5 @@ public abstract class ActivityAggregate<SmartApplicationClass extends SmartAppli
       }
     }
   }
+
 }

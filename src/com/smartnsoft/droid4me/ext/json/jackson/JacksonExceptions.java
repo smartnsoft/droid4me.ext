@@ -3,8 +3,6 @@ package com.smartnsoft.droid4me.ext.json.jackson;
 import com.smartnsoft.droid4me.ws.WebServiceClient.CallException;
 
 /**
- * The class description here.
- *
  * @author Édouard Mercier, Ludovic Roland
  * @since 2016.01.29
  */
