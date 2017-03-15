@@ -30,7 +30,7 @@ import dalvik.system.DexClassLoader;
 /**
  * An application class which enables to help loading dynamically DEX code, and resources from .apk files.
  *
- * @author Édouard Mercier
+ * @author Ã‰douard Mercier
  * @since 2013.08.06
  */
 public abstract class ExtendedApplication

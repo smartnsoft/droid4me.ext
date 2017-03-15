@@ -20,7 +20,7 @@ import com.smartnsoft.droid4me.log.LoggerFactory;
 /**
  * Wraps the sensor and provides a standard way to catch events.
  *
- * @author Édouard Mercier
+ * @author Ã‰douard Mercier
  * @since 2009.05.29
  */
 @SuppressWarnings("deprecation")

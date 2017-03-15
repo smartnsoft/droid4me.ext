@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import edu.umd.cs.findbugs.ba.URLClassPathRepository;
 import org.apache.bcel.Constants;
 import org.apache.bcel.Repository;
 import org.apache.bcel.classfile.JavaClass;
@@ -45,8 +44,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import edu.umd.cs.findbugs.ba.URLClassPathRepository;
+
 /**
- * @author ɉdouard Mercier
+ * @author Éɉdouard Mercier
  * @since 2013.07.27
  */
 public final class BcelTest
@@ -114,8 +115,8 @@ public final class BcelTest
       }
       {
         final InstructionList instructionList = new InstructionList();
-        final MethodGen methodGen = new MethodGen(Constants.ACC_PUBLIC | Constants.ACC_STATIC, loggerMethodReturnType, new Type[] { Type.STRING, Type.STRING }, new String[] {
-            "tag", "message" }, loggerMethodName, classGen.getClassName(), instructionList, constantPoolGen);
+        final MethodGen methodGen = new MethodGen(Constants.ACC_PUBLIC | Constants.ACC_STATIC, loggerMethodReturnType, new Type[] { Type.STRING,
+            Type.STRING }, new String[] { "tag", "message" }, loggerMethodName, classGen.getClassName(), instructionList, constantPoolGen);
         instructionList.append(new PUSH(constantPoolGen, 0));
         instructionList.append(InstructionFactory.createReturn(loggerMethodReturnType));
         methodGen.setMaxStack();
@@ -176,8 +177,8 @@ public final class BcelTest
             final String anotherLoggerClassName = loggerClassName;
             final String anotherLoggerMethodName = loggerMethodName;
             final BasicType anotherLoggerMethodReturnType = loggerMethodReturnType;
-            instructionHandle.setInstruction(factory.createInvoke(anotherLoggerClassName, anotherLoggerMethodName, anotherLoggerMethodReturnType, new Type[] {
-                Type.STRING, Type.STRING }, Constants.INVOKESTATIC));
+            instructionHandle.setInstruction(factory.createInvoke(anotherLoggerClassName, anotherLoggerMethodName, anotherLoggerMethodReturnType,
+                new Type[] { Type.STRING, Type.STRING }, Constants.INVOKESTATIC));
           }
 
         };
@@ -369,7 +370,8 @@ public final class BcelTest
     ifHandle.setTarget(matchHandle);
     // gotoHandle.setTarget(returnHandle);
 
-    MethodGen methodGen = new MethodGen(Constants.ACC_PUBLIC | Constants.ACC_STATIC, Type.VOID, new Type[] { new ArrayType(Type.STRING, 1) }, new String[] { "args" }, "main", "com.geekyarticles.bcel.SyntheticClass", instructionList, constantPoolGen);
+    MethodGen methodGen = new MethodGen(Constants.ACC_PUBLIC | Constants.ACC_STATIC, Type.VOID, new Type[] { new ArrayType(Type.STRING, 1) }, new String[] {
+        "args" }, "main", "com.geekyarticles.bcel.SyntheticClass", instructionList, constantPoolGen);
 
     methodGen.setMaxLocals();// Calculate the maximum number of local variables.
     methodGen.setMaxStack();// Very important: must calculate the maximum size of the stack.

@@ -24,7 +24,7 @@ import android.content.res.Resources.Theme;
 /**
  * A extension point for resources taken from an external .apk files.
  *
- * @author Édouard Mercier
+ * @author Ã‰douard Mercier
  * @since 2013.08.07
  */
 public class ExtendedResourceWrapper
