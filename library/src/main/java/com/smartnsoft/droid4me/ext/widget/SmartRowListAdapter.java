@@ -23,6 +23,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -49,45 +50,6 @@ public class SmartRowListAdapter<ViewClass extends View>
     int getColumnsCount(int row);
 
     int getHorizontalPaddingForRow(int row);
-
-  }
-
-  public static abstract class HorizontalPaddingColumnsIndicator
-      implements ColumnsIndicator
-  {
-
-    public final int horizontalPadding;
-
-    public HorizontalPaddingColumnsIndicator(int horizontalPadding)
-    {
-      this.horizontalPadding = horizontalPadding;
-    }
-
-    @Override
-    public int getHorizontalPaddingForRow(int row)
-    {
-      return horizontalPadding;
-    }
-
-  }
-
-  public static class ConstantColumnsIndicator
-      extends HorizontalPaddingColumnsIndicator
-  {
-
-    public final int columnsCount;
-
-    public ConstantColumnsIndicator(int horizontalPadding, int columnsCount)
-    {
-      super(horizontalPadding);
-      this.columnsCount = columnsCount;
-    }
-
-    @Override
-    public int getColumnsCount(int row)
-    {
-      return columnsCount;
-    }
 
   }
 
@@ -122,7 +84,7 @@ public class SmartRowListAdapter<ViewClass extends View>
     }
 
     @Override
-    protected View createNewView(Activity activity, ViewGroup parent, Integer businessObject)
+    protected View createNewView(Activity activity, LayoutInflater layoutInflater, ViewGroup viewGroup, Integer integer)
     {
       return new View(activity.getApplicationContext());
     }
@@ -134,8 +96,10 @@ public class SmartRowListAdapter<ViewClass extends View>
     }
 
     @Override
-    protected void updateView(Activity activity, Object viewAttributes, View view, Integer businessObject, int position)
+    protected void updateView(Activity activity, LayoutInflater layoutInflater, Object viewAttributes, View view,
+        Integer businessObject, int position)
     {
+
     }
 
   }
@@ -152,7 +116,8 @@ public class SmartRowListAdapter<ViewClass extends View>
       this.linearLayout = linearLayout;
     }
 
-    public void update(final Activity activity, List<BusinessViewWrapper<BusinessObjectClass>> businessObject,
+    public void update(final Activity activity, LayoutInflater layoutInflater,
+        List<BusinessViewWrapper<BusinessObjectClass>> businessObject,
         int horizontalPadding, int position)
     {
       // if (SmartRowListAdapter.DEBUG_LOG_ENABLED == true && log.isDebugEnabled())
@@ -182,7 +147,7 @@ public class SmartRowListAdapter<ViewClass extends View>
         int index = 0;
         for (BusinessViewWrapper<BusinessObjectClass> wrapper : businessObject)
         {
-          final View view = wrapper.getNewView(linearLayout, activity);
+          final View view = wrapper.getNewView(linearLayout, activity, layoutInflater);
           views[index] = view;
           // All cells will have the same width
           final ViewGroup.LayoutParams viewLayoutParams = view.getLayoutParams();
@@ -208,7 +173,7 @@ public class SmartRowListAdapter<ViewClass extends View>
         // {
         // log.debug("Updating the cell at position (" + position + "x" + column + ")");
         // }
-        wrapper.updateView(activity, theView, column);
+        wrapper.updateView(activity, layoutInflater, theView, column);
         final int finalIndex = column;
         final boolean isEnabled;
         if (wrapper.isEnabled() == true)
@@ -284,6 +249,45 @@ public class SmartRowListAdapter<ViewClass extends View>
 
   }
 
+  public static abstract class HorizontalPaddingColumnsIndicator
+      implements ColumnsIndicator
+  {
+
+    public final int horizontalPadding;
+
+    public HorizontalPaddingColumnsIndicator(int horizontalPadding)
+    {
+      this.horizontalPadding = horizontalPadding;
+    }
+
+    @Override
+    public int getHorizontalPaddingForRow(int row)
+    {
+      return horizontalPadding;
+    }
+
+  }
+
+  public static class ConstantColumnsIndicator
+      extends HorizontalPaddingColumnsIndicator
+  {
+
+    public final int columnsCount;
+
+    public ConstantColumnsIndicator(int horizontalPadding, int columnsCount)
+    {
+      super(horizontalPadding);
+      this.columnsCount = columnsCount;
+    }
+
+    @Override
+    public int getColumnsCount(int row)
+    {
+      return columnsCount;
+    }
+
+  }
+
   public static class RowBusinessViewWrapper<BusinessObjectClass>
       extends BusinessViewWrapper<List<BusinessViewWrapper<BusinessObjectClass>>>
   {
@@ -310,8 +314,8 @@ public class SmartRowListAdapter<ViewClass extends View>
     }
 
     @Override
-    protected View createNewView(Activity activity, ViewGroup parent,
-        List<BusinessViewWrapper<BusinessObjectClass>> businessObject)
+    protected View createNewView(Activity activity, LayoutInflater layoutInflater, ViewGroup viewGroup,
+        List<BusinessViewWrapper<BusinessObjectClass>> businessViewWrappers)
     {
       final LinearLayout linearLayout = new RowLinearLayout(activity.getApplicationContext(), position);
       linearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -327,10 +331,10 @@ public class SmartRowListAdapter<ViewClass extends View>
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void updateView(Activity activity, Object viewAttributes, View view,
+    protected void updateView(Activity activity, LayoutInflater layoutInflater, Object viewAttributes, View view,
         List<BusinessViewWrapper<BusinessObjectClass>> businessObject, int position)
     {
-      ((RowBusinessViewAttributes<BusinessObjectClass>) viewAttributes).update(activity, businessObject, horizontalPadding, position);
+      ((RowBusinessViewAttributes<BusinessObjectClass>) viewAttributes).update(activity, layoutInflater, businessObject, horizontalPadding, position);
     }
 
   }
@@ -341,12 +345,6 @@ public class SmartRowListAdapter<ViewClass extends View>
    * The maximum number of different view types that this component supports.
    */
   private final static int maximumDifferentTypes = 20;
-
-  /**
-   * A map which holds the already computed row types: the key is the actual total type, and the value is the canonical value
-   */
-  @SuppressLint("UseSparseArrays")
-  private final SparseArray<Integer> types = new SparseArray<Integer>();
 
   public static boolean DEBUG_LOG_ENABLED = false;
 
@@ -375,7 +373,7 @@ public class SmartRowListAdapter<ViewClass extends View>
    */
   public static List<Object> getTags(View view)
   {
-    final ArrayList<Object> tags = new ArrayList<Object>();
+    final ArrayList<Object> tags = new ArrayList<>();
     if (view instanceof ViewGroup)
     {
       final ViewGroup viewGroup = (ViewGroup) view;
@@ -391,9 +389,15 @@ public class SmartRowListAdapter<ViewClass extends View>
     return tags;
   }
 
-  public SmartRowListAdapter(Activity activity, int viewTypeCount)
+  /**
+   * A map which holds the already computed row types: the key is the actual total type, and the value is the canonical value
+   */
+  @SuppressLint("UseSparseArrays")
+  private final SparseArray<Integer> types = new SparseArray<>();
+
+  public SmartRowListAdapter(Activity activity, LayoutInflater layoutInflater, int viewTypeCount)
   {
-    super(activity, viewTypeCount);
+    super(activity, layoutInflater, viewTypeCount);
   }
 
   @Override
@@ -455,16 +459,16 @@ public class SmartRowListAdapter<ViewClass extends View>
     return conversiondWrappers;
   }
 
+  public BusinessViewWrapper<?> createEmptyWrapper(int viewType)
+  {
+    return new EmptyWrapper(viewType);
+  }
+
   @SuppressWarnings({ "rawtypes", "unchecked" })
   protected RowBusinessViewWrapper<?> getRowBusinessViewWrapper(List<BusinessViewWrapper<?>> rowWrappers,
       Integer canonicalType, int horizontalPadding, int position)
   {
     return new RowBusinessViewWrapper(rowWrappers, canonicalType, horizontalPadding, position);
-  }
-
-  public BusinessViewWrapper<?> createEmptyWrapper(int viewType)
-  {
-    return new EmptyWrapper(viewType);
   }
 
 }
