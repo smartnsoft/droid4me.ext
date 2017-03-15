@@ -4,7 +4,7 @@ apply plugin: "maven"
 ext
 {
   jacksonVersion="2.8.7"
-  droid4meVersion="2.4.8.3-SNAPSHOT"
+  droid4meVersion="2.4.8.3"
   appCompatVersion="25.3.0"
   junitVersion="4.0"
   bcelVersion="5.2"
@@ -22,7 +22,7 @@ android
     targetSdkVersion 25
 
     versionCode 10
-    versionName "2.4.2.1-SNAPSHOT"
+    versionName "2.5.0"
   }
 
   buildTypes
@@ -73,9 +73,9 @@ uploadArchives
       pom.project
       {
         name "droid4me.ext"
-        group = "com.smartnsoft"
+        groupId "com.smartnsoft"
         artifactId "droid4me.ext"
-        version = android.defaultConfig.versionName
+        version android.defaultConfig.versionName
         packaging "aar"
       }
     }
