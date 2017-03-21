@@ -21,8 +21,8 @@ android
     minSdkVersion 9
     targetSdkVersion 25
 
-    versionCode 10
-    versionName "2.5.0"
+    versionCode 11
+    versionName "2.5.1-SNAPSHOT"
   }
 
   buildTypes
@@ -65,6 +65,7 @@ uploadArchives
       {
         authentication(userName: nexusUsername, password: nexusPassword)
       }
+
       snapshotRepository(url: nexusSnapshotUrl)
       {
         authentication(userName: nexusUsername, password: nexusPassword)
