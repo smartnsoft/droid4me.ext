@@ -39,6 +39,104 @@ public abstract class SmartAdapterView<T extends Adapter>
 {
 
   /**
+   * Interface definition for a callback to be invoked when an item in this AdapterView has been clicked.
+   */
+  public interface OnItemClickListener
+  {
+
+    /**
+     * Callback method to be invoked when an item in this AdapterView has been clicked.
+     * <p/>
+     * Implementers can call getItemAtPosition(position) if they need to access the data associated with the selected item.
+     *
+     * @param parent   The AdapterView where the click happened.
+     * @param view     The view within the AdapterView that was clicked (this will be a view provided by the adapter)
+     * @param position The position of the view in the adapter.
+     * @param id       The row id of the item that was clicked.
+     */
+    void onItemClick(SmartAdapterView<?> parent, View view, int position, long id);
+  }
+
+  /**
+   * Interface definition for a callback to be invoked when an item in this view has been clicked and held.
+   */
+  public interface OnItemLongClickListener
+  {
+
+    /**
+     * Callback method to be invoked when an item in this view has been clicked and held.
+     * <p/>
+     * Implementers can call getItemAtPosition(position) if they need to access the data associated with the selected item.
+     *
+     * @param parent   The AbsListView where the click happened
+     * @param view     The view within the AbsListView that was clicked
+     * @param position The position of the view in the list
+     * @param id       The row id of the item that was clicked
+     * @return true if the callback consumed the long click, false otherwise
+     */
+    boolean onItemLongClick(SmartAdapterView<?> parent, View view, int position, long id);
+  }
+
+  /**
+   * Interface definition for a callback to be invoked when an item in this view has been selected.
+   */
+  public interface OnItemSelectedListener
+  {
+
+    /**
+     * Callback method to be invoked when an item in this view has been selected.
+     * <p/>
+     * Impelmenters can call getItemAtPosition(position) if they need to access the data associated with the selected item.
+     *
+     * @param parent   The AdapterView where the selection happened
+     * @param view     The view within the AdapterView that was clicked
+     * @param position The position of the view in the adapter
+     * @param id       The row id of the item that is selected
+     */
+    void onItemSelected(SmartAdapterView<?> parent, View view, int position, long id);
+
+    /**
+     * Callback method to be invoked when the selection disappears from this view. The selection can disappear for instance when touch is activated or
+     * when the adapter becomes empty.
+     *
+     * @param parent The AdapterView that now contains no selected item.
+     */
+    void onNothingSelected(SmartAdapterView<?> parent);
+  }
+
+  /**
+   * Extra menu information provided to the
+   * {@link android.view.View.OnCreateContextMenuListener#onCreateContextMenu(ContextMenu, View, ContextMenuInfo) } callback when a context menu is
+   * brought up for this AdapterView.
+   */
+  public static class AdapterContextMenuInfo
+      implements ContextMenu.ContextMenuInfo
+  {
+
+    /**
+     * The child view for which the context menu is being displayed. This will be one of the children of this AdapterView.
+     */
+    public View targetView;
+
+    /**
+     * The position in the adapter for which the context menu is being displayed.
+     */
+    public int position;
+
+    /**
+     * The row id of the item for which the context menu is being displayed.
+     */
+    public long id;
+
+    public AdapterContextMenuInfo(View targetView, int position, long id)
+    {
+      this.targetView = targetView;
+      this.position = position;
+      this.id = id;
+    }
+  }
+
+  /**
    * The item view type returned by {@link Adapter#getItemViewType(int)} when the adapter does not want the item's view recycled.
    */
   public static final int ITEM_VIEW_TYPE_IGNORE = -1;
@@ -47,6 +145,31 @@ public abstract class SmartAdapterView<T extends Adapter>
    * The item view type returned by {@link Adapter#getItemViewType(int)} when the item is a header or footer.
    */
   public static final int ITEM_VIEW_TYPE_HEADER_OR_FOOTER = -2;
+
+  /**
+   * Represents an invalid position. All valid positions are in the range 0 to 1 less than the number of items in the current adapter.
+   */
+  public static final int INVALID_POSITION = -1;
+
+  /**
+   * Represents an empty or invalid row id
+   */
+  public static final long INVALID_ROW_ID = Long.MIN_VALUE;
+
+  /**
+   * Sync based on the selected child
+   */
+  static final int SYNC_SELECTED_POSITION = 0;
+
+  /**
+   * Sync based on the first child displayed
+   */
+  static final int SYNC_FIRST_POSITION = 1;
+
+  /**
+   * Maximum amount of time to spend in {@link #findSyncPosition()}
+   */
+  static final int SYNC_MAX_DURATION_MILLIS = 100;
 
   /**
    * The position of the first child displayed
@@ -84,26 +207,6 @@ public abstract class SmartAdapterView<T extends Adapter>
    * .
    */
   int mSyncMode;
-
-  /**
-   * Our height after the last layout
-   */
-  private int mLayoutHeight;
-
-  /**
-   * Sync based on the selected child
-   */
-  static final int SYNC_SELECTED_POSITION = 0;
-
-  /**
-   * Sync based on the first child displayed
-   */
-  static final int SYNC_FIRST_POSITION = 1;
-
-  /**
-   * Maximum amount of time to spend in {@link #findSyncPosition()}
-   */
-  static final int SYNC_MAX_DURATION_MILLIS = 100;
 
   /**
    * Indicates that this view is currently being laid out.
@@ -153,11 +256,6 @@ public abstract class SmartAdapterView<T extends Adapter>
   long mSelectedRowId = INVALID_ROW_ID;
 
   /**
-   * View to show if there are no items to show.
-   */
-  private View mEmptyView;
-
-  /**
    * The number of items in the current adapter.
    */
   @ViewDebug.ExportedProperty
@@ -169,16 +267,6 @@ public abstract class SmartAdapterView<T extends Adapter>
   int mOldItemCount;
 
   /**
-   * Represents an invalid position. All valid positions are in the range 0 to 1 less than the number of items in the current adapter.
-   */
-  public static final int INVALID_POSITION = -1;
-
-  /**
-   * Represents an empty or invalid row id
-   */
-  public static final long INVALID_ROW_ID = Long.MIN_VALUE;
-
-  /**
    * The last selected position we used when notifying
    */
   int mOldSelectedPosition = INVALID_POSITION;
@@ -187,6 +275,21 @@ public abstract class SmartAdapterView<T extends Adapter>
    * The id of the last selected position we used when notifying
    */
   long mOldSelectedRowId = INVALID_ROW_ID;
+
+  /**
+   * When set to true, calls to requestLayout() will not propagate up the parent hierarchy. This is used to layout the children during a layout pass.
+   */
+  boolean mBlockLayoutRequests = false;
+
+  /**
+   * Our height after the last layout
+   */
+  private int mLayoutHeight;
+
+  /**
+   * View to show if there are no items to show.
+   */
+  private View mEmptyView;
 
   /**
    * Indicates what focusable state is requested when calling setFocusable(). In addition to this, this view has other criteria for actually
@@ -200,11 +303,6 @@ public abstract class SmartAdapterView<T extends Adapter>
   private boolean mDesiredFocusableInTouchModeState;
 
   private SelectionNotifier mSelectionNotifier;
-
-  /**
-   * When set to true, calls to requestLayout() will not propagate up the parent hierarchy. This is used to layout the children during a layout pass.
-   */
-  boolean mBlockLayoutRequests = false;
 
   public SmartAdapterView(Context context)
   {
@@ -222,37 +320,190 @@ public abstract class SmartAdapterView<T extends Adapter>
   }
 
   /**
-   * Interface definition for a callback to be invoked when an item in this AdapterView has been clicked.
+   * This method is not supported and throws an UnsupportedOperationException when called.
+   *
+   * @param child Ignored.
+   * @throws UnsupportedOperationException Every time this method is invoked.
    */
-  public interface OnItemClickListener
+  @Override
+  public void addView(View child)
   {
-
-    /**
-     * Callback method to be invoked when an item in this AdapterView has been clicked.
-     * <p/>
-     * Implementers can call getItemAtPosition(position) if they need to access the data associated with the selected item.
-     *
-     * @param parent
-     *          The AdapterView where the click happened.
-     * @param view
-     *          The view within the AdapterView that was clicked (this will be a view provided by the adapter)
-     * @param position
-     *          The position of the view in the adapter.
-     * @param id
-     *          The row id of the item that was clicked.
-     */
-    void onItemClick(SmartAdapterView<?> parent, View view, int position, long id);
+    throw new UnsupportedOperationException("addView(View) is not supported in AdapterView");
   }
 
   /**
-   * Register a callback to be invoked when an item in this AdapterView has been clicked.
+   * This method is not supported and throws an UnsupportedOperationException when called.
    *
-   * @param listener
-   *          The callback that will be invoked.
+   * @param child Ignored.
+   * @param index Ignored.
+   * @throws UnsupportedOperationException Every time this method is invoked.
    */
-  public void setOnItemClickListener(OnItemClickListener listener)
+  @Override
+  public void addView(View child, int index)
   {
-    mOnItemClickListener = listener;
+    throw new UnsupportedOperationException("addView(View, int) is not supported in AdapterView");
+  }
+
+  /**
+   * This method is not supported and throws an UnsupportedOperationException when called.
+   *
+   * @param child  Ignored.
+   * @param params Ignored.
+   * @throws UnsupportedOperationException Every time this method is invoked.
+   */
+  @Override
+  public void addView(View child, LayoutParams params)
+  {
+    throw new UnsupportedOperationException("addView(View, LayoutParams) " + "is not supported in AdapterView");
+  }
+
+  /**
+   * This method is not supported and throws an UnsupportedOperationException when called.
+   *
+   * @param child  Ignored.
+   * @param index  Ignored.
+   * @param params Ignored.
+   * @throws UnsupportedOperationException Every time this method is invoked.
+   */
+  @Override
+  public void addView(View child, int index, LayoutParams params)
+  {
+    throw new UnsupportedOperationException("addView(View, int, LayoutParams) " + "is not supported in AdapterView");
+  }
+
+  /**
+   * This method is not supported and throws an UnsupportedOperationException when called.
+   *
+   * @param child Ignored.
+   * @throws UnsupportedOperationException Every time this method is invoked.
+   */
+  @Override
+  public void removeView(View child)
+  {
+    throw new UnsupportedOperationException("removeView(View) is not supported in AdapterView");
+  }
+
+  /**
+   * This method is not supported and throws an UnsupportedOperationException when called.
+   *
+   * @param index Ignored.
+   * @throws UnsupportedOperationException Every time this method is invoked.
+   */
+  @Override
+  public void removeViewAt(int index)
+  {
+    throw new UnsupportedOperationException("removeViewAt(int) is not supported in AdapterView");
+  }
+
+  /**
+   * This method is not supported and throws an UnsupportedOperationException when called.
+   *
+   * @throws UnsupportedOperationException Every time this method is invoked.
+   */
+  @Override
+  public void removeAllViews()
+  {
+    throw new UnsupportedOperationException("removeAllViews() is not supported in AdapterView");
+  }
+
+  @Override
+  public void setFocusable(boolean focusable)
+  {
+    final T adapter = getAdapter();
+    final boolean empty = adapter == null || adapter.getCount() == 0;
+
+    mDesiredFocusableState = focusable;
+    if (!focusable)
+    {
+      mDesiredFocusableInTouchModeState = false;
+    }
+
+    super.setFocusable(focusable && (!empty || isInFilterMode()));
+  }
+
+  @Override
+  public void setFocusableInTouchMode(boolean focusable)
+  {
+    final T adapter = getAdapter();
+    final boolean empty = adapter == null || adapter.getCount() == 0;
+
+    mDesiredFocusableInTouchModeState = focusable;
+    if (focusable)
+    {
+      mDesiredFocusableState = true;
+    }
+
+    super.setFocusableInTouchMode(focusable && (!empty || isInFilterMode()));
+  }
+
+  @Override
+  public void setOnClickListener(OnClickListener l)
+  {
+    throw new RuntimeException("Don't call setOnClickListener for an AdapterView. " + "You probably want setOnItemClickListener instead");
+  }
+
+  @Override
+  public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event)
+  {
+    boolean populated = false;
+    // This is an exceptional case which occurs when a window gets the
+    // focus and sends a focus event via its focused child to announce
+    // current focus/selection. AdapterView fires selection but not focus
+    // events so we change the event type here.
+    if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_FOCUSED)
+    {
+      event.setEventType(AccessibilityEvent.TYPE_VIEW_SELECTED);
+    }
+
+    // we send selection events only from AdapterView to avoid
+    // generation of such event for each child
+    View selectedView = getSelectedView();
+    if (selectedView != null)
+    {
+      populated = selectedView.dispatchPopulateAccessibilityEvent(event);
+    }
+
+    if (!populated)
+    {
+      if (selectedView != null)
+      {
+        event.setEnabled(selectedView.isEnabled());
+      }
+      event.setItemCount(getCount());
+      event.setCurrentItemIndex(getSelectedItemPosition());
+    }
+
+    return populated;
+  }
+
+  @Override
+  protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+  {
+    mLayoutHeight = getHeight();
+  }
+
+  /**
+   * Override to prevent freezing of any views created by the adapter.
+   */
+  @Override
+  protected void dispatchSaveInstanceState(SparseArray<Parcelable> container)
+  {
+    dispatchFreezeSelfOnly(container);
+  }
+
+  /**
+   * Override to prevent thawing of any views created by the adapter.
+   */
+  @Override
+  protected void dispatchRestoreInstanceState(SparseArray<Parcelable> container)
+  {
+    dispatchThawSelfOnly(container);
+  }
+
+  @Override
+  protected boolean canAnimate()
+  {
+    return super.canAnimate() && mItemCount > 0;
   }
 
   /**
@@ -264,14 +515,21 @@ public abstract class SmartAdapterView<T extends Adapter>
   }
 
   /**
+   * Register a callback to be invoked when an item in this AdapterView has been clicked.
+   *
+   * @param listener The callback that will be invoked.
+   */
+  public void setOnItemClickListener(OnItemClickListener listener)
+  {
+    mOnItemClickListener = listener;
+  }
+
+  /**
    * Call the OnItemClickListener, if it is defined.
    *
-   * @param view
-   *          The view within the AdapterView that was clicked.
-   * @param position
-   *          The position of the view in the adapter.
-   * @param id
-   *          The row id of the item that was clicked.
+   * @param view     The view within the AdapterView that was clicked.
+   * @param position The position of the view in the adapter.
+   * @param id       The row id of the item that was clicked.
    * @return True if there was an assigned OnItemClickListener that was called, false otherwise is returned.
    */
   public boolean performItemClick(View view, int position, long id)
@@ -287,34 +545,17 @@ public abstract class SmartAdapterView<T extends Adapter>
   }
 
   /**
-   * Interface definition for a callback to be invoked when an item in this view has been clicked and held.
+   * @return The callback to be invoked with an item in this AdapterView has been clicked and held, or null id no callback as been set.
    */
-  public interface OnItemLongClickListener
+  public final OnItemLongClickListener getOnItemLongClickListener()
   {
-
-    /**
-     * Callback method to be invoked when an item in this view has been clicked and held.
-     * <p/>
-     * Implementers can call getItemAtPosition(position) if they need to access the data associated with the selected item.
-     *
-     * @param parent
-     *          The AbsListView where the click happened
-     * @param view
-     *          The view within the AbsListView that was clicked
-     * @param position
-     *          The position of the view in the list
-     * @param id
-     *          The row id of the item that was clicked
-     * @return true if the callback consumed the long click, false otherwise
-     */
-    boolean onItemLongClick(SmartAdapterView<?> parent, View view, int position, long id);
+    return mOnItemLongClickListener;
   }
 
   /**
    * Register a callback to be invoked when an item in this AdapterView has been clicked and held
    *
-   * @param listener
-   *          The callback that will run
+   * @param listener The callback that will run
    */
   public void setOnItemLongClickListener(OnItemLongClickListener listener)
   {
@@ -325,92 +566,19 @@ public abstract class SmartAdapterView<T extends Adapter>
     mOnItemLongClickListener = listener;
   }
 
-  /**
-   * @return The callback to be invoked with an item in this AdapterView has been clicked and held, or null id no callback as been set.
-   */
-  public final OnItemLongClickListener getOnItemLongClickListener()
-  {
-    return mOnItemLongClickListener;
-  }
-
-  /**
-   * Interface definition for a callback to be invoked when an item in this view has been selected.
-   */
-  public interface OnItemSelectedListener
-  {
-
-    /**
-     * Callback method to be invoked when an item in this view has been selected.
-     * <p/>
-     * Impelmenters can call getItemAtPosition(position) if they need to access the data associated with the selected item.
-     *
-     * @param parent
-     *          The AdapterView where the selection happened
-     * @param view
-     *          The view within the AdapterView that was clicked
-     * @param position
-     *          The position of the view in the adapter
-     * @param id
-     *          The row id of the item that is selected
-     */
-    void onItemSelected(SmartAdapterView<?> parent, View view, int position, long id);
-
-    /**
-     * Callback method to be invoked when the selection disappears from this view. The selection can disappear for instance when touch is activated or
-     * when the adapter becomes empty.
-     *
-     * @param parent
-     *          The AdapterView that now contains no selected item.
-     */
-    void onNothingSelected(SmartAdapterView<?> parent);
-  }
-
-  /**
-   * Register a callback to be invoked when an item in this AdapterView has been selected.
-   *
-   * @param listener
-   *          The callback that will run
-   */
-  public void setOnItemSelectedListener(OnItemSelectedListener listener)
-  {
-    mOnItemSelectedListener = listener;
-  }
-
   public final OnItemSelectedListener getOnItemSelectedListener()
   {
     return mOnItemSelectedListener;
   }
 
   /**
-   * Extra menu information provided to the
-   * {@link android.view.View.OnCreateContextMenuListener#onCreateContextMenu(ContextMenu, View, ContextMenuInfo) } callback when a context menu is
-   * brought up for this AdapterView.
+   * Register a callback to be invoked when an item in this AdapterView has been selected.
+   *
+   * @param listener The callback that will run
    */
-  public static class AdapterContextMenuInfo
-      implements ContextMenu.ContextMenuInfo
+  public void setOnItemSelectedListener(OnItemSelectedListener listener)
   {
-
-    public AdapterContextMenuInfo(View targetView, int position, long id)
-    {
-      this.targetView = targetView;
-      this.position = position;
-      this.id = id;
-    }
-
-    /**
-     * The child view for which the context menu is being displayed. This will be one of the children of this AdapterView.
-     */
-    public View targetView;
-
-    /**
-     * The position in the adapter for which the context menu is being displayed.
-     */
-    public int position;
-
-    /**
-     * The row id of the item for which the context menu is being displayed.
-     */
-    public long id;
+    mOnItemSelectedListener = listener;
   }
 
   /**
@@ -423,120 +591,9 @@ public abstract class SmartAdapterView<T extends Adapter>
   /**
    * Sets the adapter that provides the data and the views to represent the data in this widget.
    *
-   * @param adapter
-   *          The adapter to use to create this view's content.
+   * @param adapter The adapter to use to create this view's content.
    */
   public abstract void setAdapter(T adapter);
-
-  /**
-   * This method is not supported and throws an UnsupportedOperationException when called.
-   *
-   * @param child
-   *          Ignored.
-   * @throws UnsupportedOperationException
-   *           Every time this method is invoked.
-   */
-  @Override
-  public void addView(View child)
-  {
-    throw new UnsupportedOperationException("addView(View) is not supported in AdapterView");
-  }
-
-  /**
-   * This method is not supported and throws an UnsupportedOperationException when called.
-   *
-   * @param child
-   *          Ignored.
-   * @param index
-   *          Ignored.
-   * @throws UnsupportedOperationException
-   *           Every time this method is invoked.
-   */
-  @Override
-  public void addView(View child, int index)
-  {
-    throw new UnsupportedOperationException("addView(View, int) is not supported in AdapterView");
-  }
-
-  /**
-   * This method is not supported and throws an UnsupportedOperationException when called.
-   *
-   * @param child
-   *          Ignored.
-   * @param params
-   *          Ignored.
-   * @throws UnsupportedOperationException
-   *           Every time this method is invoked.
-   */
-  @Override
-  public void addView(View child, LayoutParams params)
-  {
-    throw new UnsupportedOperationException("addView(View, LayoutParams) " + "is not supported in AdapterView");
-  }
-
-  /**
-   * This method is not supported and throws an UnsupportedOperationException when called.
-   *
-   * @param child
-   *          Ignored.
-   * @param index
-   *          Ignored.
-   * @param params
-   *          Ignored.
-   * @throws UnsupportedOperationException
-   *           Every time this method is invoked.
-   */
-  @Override
-  public void addView(View child, int index, LayoutParams params)
-  {
-    throw new UnsupportedOperationException("addView(View, int, LayoutParams) " + "is not supported in AdapterView");
-  }
-
-  /**
-   * This method is not supported and throws an UnsupportedOperationException when called.
-   *
-   * @param child
-   *          Ignored.
-   * @throws UnsupportedOperationException
-   *           Every time this method is invoked.
-   */
-  @Override
-  public void removeView(View child)
-  {
-    throw new UnsupportedOperationException("removeView(View) is not supported in AdapterView");
-  }
-
-  /**
-   * This method is not supported and throws an UnsupportedOperationException when called.
-   *
-   * @param index
-   *          Ignored.
-   * @throws UnsupportedOperationException
-   *           Every time this method is invoked.
-   */
-  @Override
-  public void removeViewAt(int index)
-  {
-    throw new UnsupportedOperationException("removeViewAt(int) is not supported in AdapterView");
-  }
-
-  /**
-   * This method is not supported and throws an UnsupportedOperationException when called.
-   *
-   * @throws UnsupportedOperationException
-   *           Every time this method is invoked.
-   */
-  @Override
-  public void removeAllViews()
-  {
-    throw new UnsupportedOperationException("removeAllViews() is not supported in AdapterView");
-  }
-
-  @Override
-  protected void onLayout(boolean changed, int left, int top, int right, int bottom)
-  {
-    mLayoutHeight = getHeight();
-  }
 
   /**
    * Return the position of the currently selected item within the adapter's data set
@@ -582,7 +639,7 @@ public abstract class SmartAdapterView<T extends Adapter>
 
   /**
    * @return The number of items owned by the Adapter associated with this AdapterView. (This is the number of data items, which may be larger than
-   *         the number of visible view.)
+   * the number of visible view.)
    */
   @ViewDebug.CapturedViewProperty
   public int getCount()
@@ -593,10 +650,9 @@ public abstract class SmartAdapterView<T extends Adapter>
   /**
    * Get the position within the adapter's data set for the view, where view is a an adapter item or a descendant of an adapter item.
    *
-   * @param view
-   *          an adapter item, or a descendant of an adapter item. This must be visible in this AdapterView at the time of the call.
+   * @param view an adapter item, or a descendant of an adapter item. This must be visible in this AdapterView at the time of the call.
    * @return the position within the adapter's data set of the view, or {@link #INVALID_POSITION} if the view does not correspond to a list item (or
-   *         it is not currently visible).
+   * it is not currently visible).
    */
   public int getPositionForView(View view)
   {
@@ -652,10 +708,20 @@ public abstract class SmartAdapterView<T extends Adapter>
   /**
    * Sets the currently selected item. To support accessibility subclasses that override this method must invoke the overriden super method first.
    *
-   * @param position
-   *          Index (starting at 0) of the data item to be selected.
+   * @param position Index (starting at 0) of the data item to be selected.
    */
   public abstract void setSelection(int position);
+
+  /**
+   * When the current adapter is empty, the AdapterView can display a special view call the empty view. The empty view is used to provide feedback to
+   * the user that no data is available in this AdapterView.
+   *
+   * @return The view to show if the adapter is empty.
+   */
+  public View getEmptyView()
+  {
+    return mEmptyView;
+  }
 
   /**
    * Sets the view to show if the adapter is empty
@@ -670,70 +736,21 @@ public abstract class SmartAdapterView<T extends Adapter>
   }
 
   /**
-   * When the current adapter is empty, the AdapterView can display a special view call the empty view. The empty view is used to provide feedback to
-   * the user that no data is available in this AdapterView.
+   * Gets the data associated with the specified position in the list.
    *
-   * @return The view to show if the adapter is empty.
+   * @param position Which data to get
+   * @return The data associated with the specified position in the list
    */
-  public View getEmptyView()
+  public Object getItemAtPosition(int position)
   {
-    return mEmptyView;
+    T adapter = getAdapter();
+    return (adapter == null || position < 0) ? null : adapter.getItem(position);
   }
 
-  /**
-   * Indicates whether this view is in filter mode. Filter mode can for instance be enabled by a user when typing on the keyboard.
-   *
-   * @return True if the view is in filter mode, false otherwise.
-   */
-  boolean isInFilterMode()
+  public long getItemIdAtPosition(int position)
   {
-    return false;
-  }
-
-  @Override
-  public void setFocusable(boolean focusable)
-  {
-    final T adapter = getAdapter();
-    final boolean empty = adapter == null || adapter.getCount() == 0;
-
-    mDesiredFocusableState = focusable;
-    if (!focusable)
-    {
-      mDesiredFocusableInTouchModeState = false;
-    }
-
-    super.setFocusable(focusable && (!empty || isInFilterMode()));
-  }
-
-  @Override
-  public void setFocusableInTouchMode(boolean focusable)
-  {
-    final T adapter = getAdapter();
-    final boolean empty = adapter == null || adapter.getCount() == 0;
-
-    mDesiredFocusableInTouchModeState = focusable;
-    if (focusable)
-    {
-      mDesiredFocusableState = true;
-    }
-
-    super.setFocusableInTouchMode(focusable && (!empty || isInFilterMode()));
-  }
-
-  void checkFocus()
-  {
-    final T adapter = getAdapter();
-    final boolean empty = adapter == null || adapter.getCount() == 0;
-    final boolean focusable = !empty || isInFilterMode();
-    // The order in which we set focusable in touch mode/focusable may matter
-    // for the client, see View.setFocusableInTouchMode() comments for more
-    // details
-    super.setFocusableInTouchMode(focusable && mDesiredFocusableInTouchModeState);
-    super.setFocusable(focusable && mDesiredFocusableState);
-    if (mEmptyView != null)
-    {
-      updateEmptyStatus((adapter == null) || adapter.isEmpty());
-    }
+    T adapter = getAdapter();
+    return (adapter == null || position < 0) ? INVALID_ROW_ID : adapter.getItemId(position);
   }
 
   /**
@@ -784,47 +801,49 @@ public abstract class SmartAdapterView<T extends Adapter>
     }
   }
 
+  private void fireOnSelected()
+  {
+    if (mOnItemSelectedListener == null)
+    {
+      return;
+    }
+
+    int selection = this.getSelectedItemPosition();
+    if (selection >= 0)
+    {
+      View v = getSelectedView();
+      mOnItemSelectedListener.onItemSelected(this, v, selection, getAdapter().getItemId(selection));
+    }
+    else
+    {
+      mOnItemSelectedListener.onNothingSelected(this);
+    }
+  }
+
   /**
-   * Gets the data associated with the specified position in the list.
+   * Indicates whether this view is in filter mode. Filter mode can for instance be enabled by a user when typing on the keyboard.
    *
-   * @param position
-   *          Which data to get
-   * @return The data associated with the specified position in the list
+   * @return True if the view is in filter mode, false otherwise.
    */
-  public Object getItemAtPosition(int position)
+  boolean isInFilterMode()
   {
-    T adapter = getAdapter();
-    return (adapter == null || position < 0) ? null : adapter.getItem(position);
+    return false;
   }
 
-  public long getItemIdAtPosition(int position)
+  void checkFocus()
   {
-    T adapter = getAdapter();
-    return (adapter == null || position < 0) ? INVALID_ROW_ID : adapter.getItemId(position);
-  }
-
-  @Override
-  public void setOnClickListener(OnClickListener l)
-  {
-    throw new RuntimeException("Don't call setOnClickListener for an AdapterView. " + "You probably want setOnItemClickListener instead");
-  }
-
-  /**
-   * Override to prevent freezing of any views created by the adapter.
-   */
-  @Override
-  protected void dispatchSaveInstanceState(SparseArray<Parcelable> container)
-  {
-    dispatchFreezeSelfOnly(container);
-  }
-
-  /**
-   * Override to prevent thawing of any views created by the adapter.
-   */
-  @Override
-  protected void dispatchRestoreInstanceState(SparseArray<Parcelable> container)
-  {
-    dispatchThawSelfOnly(container);
+    final T adapter = getAdapter();
+    final boolean empty = adapter == null || adapter.getCount() == 0;
+    final boolean focusable = !empty || isInFilterMode();
+    // The order in which we set focusable in touch mode/focusable may matter
+    // for the client, see View.setFocusableInTouchMode() comments for more
+    // details
+    super.setFocusableInTouchMode(focusable && mDesiredFocusableInTouchModeState);
+    super.setFocusable(focusable && mDesiredFocusableState);
+    if (mEmptyView != null)
+    {
+      updateEmptyStatus((adapter == null) || adapter.isEmpty());
+    }
   }
 
   class AdapterDataSetObserver
@@ -937,65 +956,6 @@ public abstract class SmartAdapterView<T extends Adapter>
     {
       sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_SELECTED);
     }
-  }
-
-  private void fireOnSelected()
-  {
-    if (mOnItemSelectedListener == null)
-    {
-      return;
-    }
-
-    int selection = this.getSelectedItemPosition();
-    if (selection >= 0)
-    {
-      View v = getSelectedView();
-      mOnItemSelectedListener.onItemSelected(this, v, selection, getAdapter().getItemId(selection));
-    }
-    else
-    {
-      mOnItemSelectedListener.onNothingSelected(this);
-    }
-  }
-
-  @Override
-  public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event)
-  {
-    boolean populated = false;
-    // This is an exceptional case which occurs when a window gets the
-    // focus and sends a focus event via its focused child to announce
-    // current focus/selection. AdapterView fires selection but not focus
-    // events so we change the event type here.
-    if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_FOCUSED)
-    {
-      event.setEventType(AccessibilityEvent.TYPE_VIEW_SELECTED);
-    }
-
-    // we send selection events only from AdapterView to avoid
-    // generation of such event for each child
-    View selectedView = getSelectedView();
-    if (selectedView != null)
-    {
-      populated = selectedView.dispatchPopulateAccessibilityEvent(event);
-    }
-
-    if (!populated)
-    {
-      if (selectedView != null)
-      {
-        event.setEnabled(selectedView.isEnabled());
-      }
-      event.setItemCount(getCount());
-      event.setCurrentItemIndex(getSelectedItemPosition());
-    }
-
-    return populated;
-  }
-
-  @Override
-  protected boolean canAnimate()
-  {
-    return super.canAnimate() && mItemCount > 0;
   }
 
   void handleDataChanged()
@@ -1180,12 +1140,10 @@ public abstract class SmartAdapterView<T extends Adapter>
   /**
    * Find a position that can be selected (i.e., is not a separator).
    *
-   * @param position
-   *          The starting position to look at.
-   * @param lookDown
-   *          Whether to look down for other positions.
+   * @param position The starting position to look at.
+   * @param lookDown Whether to look down for other positions.
    * @return The next selectable position starting at position and then searching either up or down. Returns {@link #INVALID_POSITION} if nothing can
-   *         be found.
+   * be found.
    */
   int lookForSelectablePosition(int position, boolean lookDown)
   {
@@ -1195,8 +1153,7 @@ public abstract class SmartAdapterView<T extends Adapter>
   /**
    * Utility to keep mSelectedPosition and mSelectedRowId in sync
    *
-   * @param position
-   *          Our current position
+   * @param position Our current position
    */
   void setSelectedPositionInt(int position)
   {
@@ -1207,8 +1164,7 @@ public abstract class SmartAdapterView<T extends Adapter>
   /**
    * Utility to keep mNextSelectedPosition and mNextSelectedRowId in sync
    *
-   * @param position
-   *          Intended value for mSelectedPosition the next time we go through layout
+   * @param position Intended value for mSelectedPosition the next time we go through layout
    */
   void setNextSelectedPositionInt(int position)
   {

@@ -78,39 +78,6 @@ public abstract class FragmentAggregate<SmartApplicationClass extends SmartAppli
     }
   }
 
-  protected abstract Object getActionBar(Activity activity);
-
-  protected void onCreateDone(Activity activity)
-  {
-    final Object actionBarObject = getActionBar(activity);
-    final int titleIdentifier = fragmentAnnotation.fragmentTitleIdentifier();
-    final int subTitleIdentifier = fragmentAnnotation.fragmentSubTitleIdentifier();
-    if (actionBarObject instanceof ActionBar)
-    {
-      final ActionBar actionBar = (ActionBar) actionBarObject;
-      if (titleIdentifier > 0)
-      {
-        actionBar.setTitle(titleIdentifier);
-      }
-      if (subTitleIdentifier > 0)
-      {
-        actionBar.setSubtitle(subTitleIdentifier);
-      }
-    }
-    else if (actionBarObject instanceof android.app.ActionBar)
-    {
-      final android.app.ActionBar actionBar = (android.app.ActionBar) actionBarObject;
-      if (titleIdentifier > 0)
-      {
-        actionBar.setTitle(titleIdentifier);
-      }
-      if (subTitleIdentifier > 0)
-      {
-        actionBar.setSubtitle(subTitleIdentifier);
-      }
-    }
-  }
-
   /**
    * Open the specified fragment, the previous fragment is add to the back stack.
    */
@@ -145,6 +112,39 @@ public abstract class FragmentAggregate<SmartApplicationClass extends SmartAppli
   public FragmentAnnotation getFragmentAnnotation()
   {
     return fragmentAnnotation;
+  }
+
+  protected abstract Object getActionBar(Activity activity);
+
+  protected void onCreateDone(Activity activity)
+  {
+    final Object actionBarObject = getActionBar(activity);
+    final int titleIdentifier = fragmentAnnotation.fragmentTitleIdentifier();
+    final int subTitleIdentifier = fragmentAnnotation.fragmentSubTitleIdentifier();
+    if (actionBarObject instanceof ActionBar)
+    {
+      final ActionBar actionBar = (ActionBar) actionBarObject;
+      if (titleIdentifier > 0)
+      {
+        actionBar.setTitle(titleIdentifier);
+      }
+      if (subTitleIdentifier > 0)
+      {
+        actionBar.setSubtitle(subTitleIdentifier);
+      }
+    }
+    else if (actionBarObject instanceof android.app.ActionBar)
+    {
+      final android.app.ActionBar actionBar = (android.app.ActionBar) actionBarObject;
+      if (titleIdentifier > 0)
+      {
+        actionBar.setTitle(titleIdentifier);
+      }
+      if (subTitleIdentifier > 0)
+      {
+        actionBar.setSubtitle(subTitleIdentifier);
+      }
+    }
   }
 
 }

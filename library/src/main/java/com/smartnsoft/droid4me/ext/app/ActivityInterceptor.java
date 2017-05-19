@@ -48,27 +48,6 @@ public abstract class ActivityInterceptor<ActivityAggregateClass extends Activit
   }
 
   /**
-   * This method is responsible for instantiating an {@link ActivityAggregate} class, which will be defined as a {@link SmartableActivity} aggregate.
-   *
-   * @param activity
-   * @param smartable
-   * @param annotation
-   * @return the new instance of {@link ActivityAggregate}
-   */
-  protected abstract ActivityAggregateClass instantiateActivityAggregate(Activity activity,
-      Smartable<ActivityAggregateClass> smartable, ActivityAnnotation annotation);
-
-  /**
-   * This method is responsible for instantiating an {@link FragmentAggregate} class, which will be defined as a {@link Smartable} fragment aggregate.
-   *
-   * @param smartableFragment
-   * @param fragmentAnnotation
-   * @return the new instance of {@link FragmentAggregate}
-   */
-  protected abstract FragmentAggregateClass instantiateFragmentAggregate(
-      Smartable<FragmentAggregateClass> smartableFragment, FragmentAnnotation fragmentAnnotation);
-
-  /**
    * This method should be invoked during the {@link ActivityController.Interceptor#onLifeCycleEvent(Activity, Object, InterceptorEvent)} method, and
    * it will handle everything.
    */
@@ -112,5 +91,26 @@ public abstract class ActivityInterceptor<ActivityAggregateClass extends Activit
       }
     }
   }
+
+  /**
+   * This method is responsible for instantiating an {@link ActivityAggregate} class, which will be defined as a {@link SmartableActivity} aggregate.
+   *
+   * @param activity
+   * @param smartable
+   * @param annotation
+   * @return the new instance of {@link ActivityAggregate}
+   */
+  protected abstract ActivityAggregateClass instantiateActivityAggregate(Activity activity,
+      Smartable<ActivityAggregateClass> smartable, ActivityAnnotation annotation);
+
+  /**
+   * This method is responsible for instantiating an {@link FragmentAggregate} class, which will be defined as a {@link Smartable} fragment aggregate.
+   *
+   * @param smartableFragment
+   * @param fragmentAnnotation
+   * @return the new instance of {@link FragmentAggregate}
+   */
+  protected abstract FragmentAggregateClass instantiateFragmentAggregate(
+      Smartable<FragmentAggregateClass> smartableFragment, FragmentAnnotation fragmentAnnotation);
 
 }

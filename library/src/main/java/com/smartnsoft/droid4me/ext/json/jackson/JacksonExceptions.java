@@ -9,6 +9,19 @@ import com.smartnsoft.droid4me.ws.WebServiceClient.CallException;
 public abstract class JacksonExceptions
 {
 
+  public static final class JacksonJsonParsingException
+      extends JacksonParsingException
+  {
+
+    private static final long serialVersionUID = 1L;
+
+    protected JacksonJsonParsingException(Throwable throwable)
+    {
+      super(throwable);
+    }
+
+  }
+
   public static class JacksonParsingException
       extends CallException
   {
@@ -43,19 +56,6 @@ public abstract class JacksonExceptions
     public JacksonParsingException(Throwable message, int code)
     {
       super(message, code);
-    }
-
-  }
-
-  public static final class JacksonJsonParsingException
-      extends JacksonParsingException
-  {
-
-    private static final long serialVersionUID = 1L;
-
-    protected JacksonJsonParsingException(Throwable throwable)
-    {
-      super(throwable);
     }
 
   }

@@ -57,7 +57,7 @@ import com.smartnsoft.droid4me.ws.WebServiceClient.CallException;
  * This class requires the Android Support Library v4.
  * </p>
  *
- * @author �douard Mercier
+ * @author Édouard Mercier
  * @since 2014.06.13
  */
 public abstract class LoadingAndErrorInterceptor
@@ -118,6 +118,15 @@ public abstract class LoadingAndErrorInterceptor
 
   }
 
+  public interface ErrorAndRetryManager
+  {
+
+    void showError(final Activity activity, Throwable throwable, boolean fromGuiThread, final Runnable onCompletion);
+
+    void hide();
+
+  }
+
   public static final class BusinessObjectsUnavailableExceptionKeeper
   {
 
@@ -130,6 +139,11 @@ public abstract class LoadingAndErrorInterceptor
       return exception;
     }
 
+    public void setException(BusinessObjectUnavailableException exception)
+    {
+      this.exception = exception;
+    }
+
     public void checkException()
         throws BusinessObjectUnavailableException
     {
@@ -137,11 +151,6 @@ public abstract class LoadingAndErrorInterceptor
       {
         throw exception;
       }
-    }
-
-    public void setException(BusinessObjectUnavailableException exception)
-    {
-      this.exception = exception;
     }
 
     public void onRestoreInstanceState(Bundle bundle)
@@ -162,15 +171,6 @@ public abstract class LoadingAndErrorInterceptor
 
   }
 
-  public interface ErrorAndRetryManager
-  {
-
-    void showError(final Activity activity, Throwable throwable, boolean fromGuiThread, final Runnable onCompletion);
-
-    void hide();
-
-  }
-
   private static final class LoadingErrorAndRetryAttributes
   {
 
@@ -178,11 +178,11 @@ public abstract class LoadingAndErrorInterceptor
 
     private final View loadingView;
 
+    private final ErrorAndRetryManager errorAndRetryManager;
+
     private View progressBar;
 
     private TextView text;
-
-    private final ErrorAndRetryManager errorAndRetryManager;
 
     private boolean isHandlingError;
 
@@ -416,11 +416,11 @@ public abstract class LoadingAndErrorInterceptor
   public static final class LoadingErrorAndRetryAggregate
   {
 
+    private final AtomicReference<BusinessObjectUnavailableException> issue = new AtomicReference<BusinessObjectUnavailableException>();
+
     private boolean displayLoadingViewNextTime = true;
 
     private LoadingErrorAndRetryAttributes loadingErrorAndRetryAttributes;
-
-    private final AtomicReference<BusinessObjectUnavailableException> issue = new AtomicReference<BusinessObjectUnavailableException>();
 
     public final void onCreate(final ErrorAndRetryManagerProvider errorAndRetryAttributesProvider, Activity activity,
         final Smartable<?> smartable, BusinessObjectUnavailableException issue, boolean handleLoading)
@@ -519,8 +519,6 @@ public abstract class LoadingAndErrorInterceptor
 
   private final ErrorAndRetryManagerProvider errorAndRetryAttributesProvider = getErrorAndRetryAttributesProvider();
 
-  protected abstract ErrorAndRetryManagerProvider getErrorAndRetryAttributesProvider();
-
   @SuppressWarnings("unchecked")
   @Override
   public void onLifeCycleEvent(final Activity activity, Object component, InterceptorEvent interceptorEvent)
@@ -561,5 +559,7 @@ public abstract class LoadingAndErrorInterceptor
       }
     }
   }
+
+  protected abstract ErrorAndRetryManagerProvider getErrorAndRetryAttributesProvider();
 
 }

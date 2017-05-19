@@ -26,22 +26,6 @@ import com.smartnsoft.droid4me.support.v4.app.SmartFragment;
 public final class ActivityAnnotations
 {
 
-  /**
-   * Defines the available {@link ActionBar} "home" button action behaviors handled by the {@link ActivityAggregate}.
-   */
-  public enum ActionBarBehavior
-  {
-    None, ShowAsUp, ShowAsDrawer
-  }
-
-  /**
-   * Defines the available {@link ActionBar} title behaviors handled by the {@link ActivityAggregate}.
-   */
-  public enum ActionBarTitleBehavior
-  {
-    UseLogo, UseIcon, UseTitle
-  }
-
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
   @Inherited
@@ -128,6 +112,22 @@ public final class ActivityAnnotations
      */
     boolean surviveOnConfigurationChanged() default false;
 
+  }
+
+  /**
+   * Defines the available {@link ActionBar} "home" button action behaviors handled by the {@link ActivityAggregate}.
+   */
+  public enum ActionBarBehavior
+  {
+    None, ShowAsUp, ShowAsDrawer
+  }
+
+  /**
+   * Defines the available {@link ActionBar} title behaviors handled by the {@link ActivityAggregate}.
+   */
+  public enum ActionBarTitleBehavior
+  {
+    UseLogo, UseIcon, UseTitle
   }
 
   private ActivityAnnotations()
