@@ -15,9 +15,6 @@
 
 package com.smartnsoft.droid4me.ext.ws;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import com.smartnsoft.droid4me.ext.json.jackson.JacksonParser;
 import com.smartnsoft.droid4me.ext.json.jackson.ObjectMapperComputer;
 import com.smartnsoft.droid4me.ws.URLConnectionWebServiceCaller;
@@ -39,29 +36,11 @@ public abstract class JacksonURLConnectionWebServiceCaller
 
   public final JacksonParser jacksonParser;
 
-  private final int readTimeOutInMilliseconds;
-
-  private final int connectTimeOutInMilliseconds;
-
-  private final boolean acceptGzip;
-
   protected JacksonURLConnectionWebServiceCaller(int readTimeOutInMilliseconds, int connectTimeOutInMilliseconds,
       boolean acceptGzip)
   {
+    super(readTimeOutInMilliseconds, connectTimeOutInMilliseconds, acceptGzip);
     this.jacksonParser = new JacksonParser(this);
-    this.readTimeOutInMilliseconds = readTimeOutInMilliseconds;
-    this.connectTimeOutInMilliseconds = connectTimeOutInMilliseconds;
-    this.acceptGzip = acceptGzip;
-  }
-
-  @Override
-  protected void onBeforeHttpRequestExecution(URL url, HttpURLConnection httpURLConnection, CallType callType)
-      throws CallException
-  {
-    if (acceptGzip == true)
-    {
-      httpURLConnection.setRequestProperty("Accept-Encoding", "gzip");
-    }
   }
 
   @Override
@@ -73,18 +52,6 @@ public abstract class JacksonURLConnectionWebServiceCaller
     theObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     theObjectMapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, true);
     return theObjectMapper;
-  }
-
-  @Override
-  protected int getReadTimeout()
-  {
-    return readTimeOutInMilliseconds;
-  }
-
-  @Override
-  protected int getConnectTimeout()
-  {
-    return connectTimeOutInMilliseconds;
   }
 
 }
