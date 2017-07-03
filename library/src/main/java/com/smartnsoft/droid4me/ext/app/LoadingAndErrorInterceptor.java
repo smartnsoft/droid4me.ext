@@ -54,12 +54,12 @@ import com.smartnsoft.droid4me.ws.WebServiceClient.CallException;
  * declare the entity {@link AppPublics.SendLoadingIntentAnnotation} annotation, so that loading events are triggered;</li>
  * <li>the display of errors.</li>
  * </ol>
- * <p/>
+ * <p>
  * <p>
  * Caution: in order to have this interceptor working, you need to make sure that the entity (deriving hence from {@link Smartable}) uses a template
  * type implementing the {@link LoadingErrorAndRetryAggregateProvider} interface.
  * </p>
- * <p/>
+ * <p>
  * <p>
  * This class requires the Android Support Library v4.
  * </p>

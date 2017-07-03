@@ -64,6 +64,7 @@ task javadoc(type: Javadoc) {
   options.links = ["http://docs.oracle.com/javase/7/docs/api/", "http://d.android.com/reference/"]
 
   classpath += project.files(project.android.getBootClasspath().join(File.pathSeparator))
+  failOnError = false
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

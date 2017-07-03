@@ -59,7 +59,7 @@ public abstract class SmartAdapterView<T extends Adapter>
 
     /**
      * Callback method to be invoked when an item in this AdapterView has been clicked.
-     * <p/>
+     * <p>
      * Implementers can call getItemAtPosition(position) if they need to access the data associated with the selected item.
      *
      * @param parent   The AdapterView where the click happened.
@@ -78,7 +78,7 @@ public abstract class SmartAdapterView<T extends Adapter>
 
     /**
      * Callback method to be invoked when an item in this view has been clicked and held.
-     * <p/>
+     * <p>
      * Implementers can call getItemAtPosition(position) if they need to access the data associated with the selected item.
      *
      * @param parent   The AbsListView where the click happened
@@ -98,7 +98,7 @@ public abstract class SmartAdapterView<T extends Adapter>
 
     /**
      * Callback method to be invoked when an item in this view has been selected.
-     * <p/>
+     * <p>
      * Impelmenters can call getItemAtPosition(position) if they need to access the data associated with the selected item.
      *
      * @param parent   The AdapterView where the selection happened
