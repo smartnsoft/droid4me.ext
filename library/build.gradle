@@ -1,14 +1,13 @@
 apply plugin: "com.android.library"
+apply plugin: "com.jfrog.bintray"
 apply plugin: "maven"
+apply plugin: "maven-publish"
 
 ext
 {
   jacksonVersion="2.8.7"
   droid4meVersion="2.5.1"
   appCompatVersion="25.3.1"
-  junitVersion="4.0"
-  bcelVersion="5.2"
-  findVersion="1.0.0"
 }
 
 android
@@ -21,8 +20,8 @@ android
     minSdkVersion 9
     targetSdkVersion 25
 
-    versionCode 12
-    versionName "2.5.1"
+    versionCode 13
+    versionName "2.5.2"
   }
 
   buildTypes
@@ -48,11 +47,114 @@ dependencies
   compile("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
   compile("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
   compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+}
 
-  // Test
-  testCompile("junit:junit:$junitVersion")
-  testCompile("org.apache.bcel:bcel:$bcelVersion")
-  testCompile("findbugs:findbugs:$findVersion")
+task sourcesJar(type: Jar) {
+  classifier = "sources"
+  from android.sourceSets.main.java.srcDirs
+}
+
+task javadoc(type: Javadoc) {
+  title = "droid4me.ext API"
+  description "Javadoc for the droid4me.ext framework"
+  source = android.sourceSets.main.java.srcDirs
+
+  options.charSet = "UTF-8"
+  options.overview = "src/main/javadoc/overview.html"
+  options.links = ["http://docs.oracle.com/javase/7/docs/api/", "http://d.android.com/reference/"]
+
+  classpath += project.files(project.android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  classifier = "javadoc"
+  from javadoc.destinationDir
+  // options.encoding = 'UTF-8'
+}
+
+artifacts
+{
+  archives javadocJar
+  archives sourcesJar
+}
+
+def pomConfig = {
+  licenses
+  {
+    license
+    {
+      name "MIT License (MIT)"
+      url "https://opensource.org/licenses/MIT"
+      distribution "repo"
+    }
+  }
+}
+
+publishing
+{
+  publications
+  {
+    ReleasePublication(MavenPublication)
+    {
+      artifact sourcesJar
+      artifact javadocJar
+      groupId "com.smartnsoft"
+      artifactId "droid4me.ext"
+      version android.defaultConfig.versionName
+
+      pom.withXml
+      {
+        def root = asNode()
+        root.appendNode("description", "droid4me.ext is an extension of the droid4me framework.")
+        root.appendNode("name", "droid4me.ext")
+        root.appendNode("url", "https://github.com/smartnsoft/droid4me.ext")
+        root.children().last() + pomConfig
+      }
+    }
+  }
+}
+
+//https://gist.github.com/bugs84/b7887fb5d7f9f2d484b8
+publishing.publications.all
+{
+  pom.withXml
+  {
+    asNode().dependencies."*".findAll()
+    {
+      it.scope.text() == "runtime" && project.configurations.compile.allDependencies.find { dep ->
+        dep.name == it.artifactId.text()
+      }
+    }.each
+    {
+      it.scope*.value = "compile"
+    }
+  }
+}
+
+bintray
+{
+  user = bintrayUsername
+  key = bintrayKey
+
+  publications = ["ReleasePublication"]
+
+  pkg
+  {
+    repo = "maven"
+    name = "droid4me.ext"
+    userOrg = "smartnsoft"
+    licenses = ["MIT"]
+    vcsUrl = "https://github.com/smartnsoft/droid4me.ext.git"
+    publish = true
+
+    version
+    {
+      name = android.defaultConfig.versionName
+      desc = "droid4me.ext is an extension of the droid4me framework."
+      released  = new Date()
+      vcsTag = "droid4me.ext-" + android.defaultConfig.versionName
+    }
+  }
 }
 
 uploadArchives
@@ -61,9 +163,9 @@ uploadArchives
   {
     mavenDeployer
     {
-      repository(url: nexusReleaseUrl)
+      repository(url: "https://api.bintray.com/maven/smartnsoft/maven/droid4me.ext/;publish=1")
       {
-        authentication(userName: nexusUsername, password: nexusPassword)
+        authentication(userName: bintrayUsername, password: bintrayKey)
       }
 
       snapshotRepository(url: nexusSnapshotUrl)
@@ -73,9 +175,9 @@ uploadArchives
 
       pom.project
       {
-        name "droid4me.ext"
+        name "droid4me"
         groupId "com.smartnsoft"
-        artifactId "droid4me.ext"
+        artifactId "droid4me"
         version android.defaultConfig.versionName
         packaging "aar"
       }
