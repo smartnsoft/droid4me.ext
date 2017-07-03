@@ -176,9 +176,9 @@ uploadArchives
 
       pom.project
       {
-        name "droid4me"
+        name "droid4me.ext"
         groupId "com.smartnsoft"
-        artifactId "droid4me"
+        artifactId "droid4me.ext"
         version android.defaultConfig.versionName
         packaging "aar"
       }
