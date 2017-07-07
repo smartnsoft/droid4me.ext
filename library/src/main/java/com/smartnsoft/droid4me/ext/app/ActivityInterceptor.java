@@ -105,7 +105,7 @@ public abstract class ActivityInterceptor<ActivityAggregateClass extends Activit
     }
     else if (interceptorEvent == InterceptorEvent.onCreateDone)
     {
-      if (component instanceof Smartable<?> && component instanceof SmartFragment)
+      if (component instanceof Smartable<?>)
       {
         // We handle a Fragment
         final Smartable<FragmentAggregateClass> smartableFragment = (Smartable<FragmentAggregateClass>) component;
