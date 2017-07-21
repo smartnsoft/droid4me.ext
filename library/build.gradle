@@ -20,7 +20,7 @@ android
     minSdkVersion 9
     targetSdkVersion 25
 
-    versionCode 14
+    versionCode 15
     versionName "2.5.3"
   }
 
