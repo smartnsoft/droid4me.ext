@@ -6,8 +6,8 @@ apply plugin: "maven-publish"
 ext
 {
   jacksonVersion="2.8.7"
-  droid4meVersion="2.5.1"
-  appCompatVersion="25.3.1"
+  droid4meVersion="2.5.3"
+  appCompatVersion="25.4.0"
 }
 
 android
@@ -21,7 +21,7 @@ android
     targetSdkVersion 25
 
     versionCode 14
-    versionName "2.5.2.1"
+    versionName "2.5.3"
   }
 
   buildTypes
