@@ -27,10 +27,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -91,20 +89,19 @@ public class SmartRowListAdapter<ViewClass extends View>
     }
 
     @Override
-    protected View createNewView(Activity activity, LayoutInflater layoutInflater, ViewGroup viewGroup, Integer integer)
+    protected View createNewView(Context context, ViewGroup viewGroup, Integer integer)
     {
-      return new View(activity.getApplicationContext());
+      return new View(context);
     }
 
     @Override
-    protected Object extractNewViewAttributes(Activity activity, View view, Integer businessObject)
+    protected Object extractNewViewAttributes(Context context, View view, Integer businessObject)
     {
       return new EmptyAttributes(view);
     }
 
     @Override
-    protected void updateView(Activity activity, LayoutInflater layoutInflater, Object viewAttributes, View view,
-        Integer businessObject, int position)
+    protected void updateView(Context context, Object viewAttributes, View view, Integer businessObject, int position)
     {
 
     }
@@ -123,8 +120,7 @@ public class SmartRowListAdapter<ViewClass extends View>
       this.linearLayout = linearLayout;
     }
 
-    public void update(final Activity activity, LayoutInflater layoutInflater,
-        List<BusinessViewWrapper<BusinessObjectClass>> businessObject,
+    public void update(final Context context, List<BusinessViewWrapper<BusinessObjectClass>> businessObject,
         int horizontalPadding, int position)
     {
       // if (SmartRowListAdapter.DEBUG_LOG_ENABLED == true && log.isDebugEnabled())
@@ -154,7 +150,7 @@ public class SmartRowListAdapter<ViewClass extends View>
         int index = 0;
         for (BusinessViewWrapper<BusinessObjectClass> wrapper : businessObject)
         {
-          final View view = wrapper.getNewView(linearLayout, activity, layoutInflater);
+          final View view = wrapper.getNewView(linearLayout, context);
           views[index] = view;
           // All cells will have the same width
           final ViewGroup.LayoutParams viewLayoutParams = view.getLayoutParams();
@@ -180,7 +176,7 @@ public class SmartRowListAdapter<ViewClass extends View>
         // {
         // log.debug("Updating the cell at position (" + position + "x" + column + ")");
         // }
-        wrapper.updateView(activity, layoutInflater, theView, column);
+        wrapper.updateView(context, theView, column);
         final int finalIndex = column;
         final boolean isEnabled;
         if (wrapper.isEnabled() == true)
@@ -190,7 +186,7 @@ public class SmartRowListAdapter<ViewClass extends View>
             @Override
             public void onClick(View view)
             {
-              wrapper.onObjectEvent(activity, theView, ObjectEvent.Clicked, finalIndex);
+              wrapper.onObjectEvent(context, theView, ObjectEvent.Clicked, finalIndex);
             }
           });
           isEnabled = true;
@@ -321,16 +317,16 @@ public class SmartRowListAdapter<ViewClass extends View>
     }
 
     @Override
-    protected View createNewView(Activity activity, LayoutInflater layoutInflater, ViewGroup viewGroup,
+    protected View createNewView(Context context, ViewGroup viewGroup,
         List<BusinessViewWrapper<BusinessObjectClass>> businessViewWrappers)
     {
-      final LinearLayout linearLayout = new RowLinearLayout(activity.getApplicationContext(), position);
+      final LinearLayout linearLayout = new RowLinearLayout(context, position);
       linearLayout.setOrientation(LinearLayout.HORIZONTAL);
       return linearLayout;
     }
 
     @Override
-    protected Object extractNewViewAttributes(Activity activity, View view,
+    protected Object extractNewViewAttributes(Context context, View view,
         List<BusinessViewWrapper<BusinessObjectClass>> businessObject)
     {
       return new RowBusinessViewAttributes<BusinessObjectClass>((RowLinearLayout) view);
@@ -338,10 +334,10 @@ public class SmartRowListAdapter<ViewClass extends View>
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void updateView(Activity activity, LayoutInflater layoutInflater, Object viewAttributes, View view,
+    protected void updateView(Context context, Object viewAttributes, View view,
         List<BusinessViewWrapper<BusinessObjectClass>> businessObject, int position)
     {
-      ((RowBusinessViewAttributes<BusinessObjectClass>) viewAttributes).update(activity, layoutInflater, businessObject, horizontalPadding, position);
+      ((RowBusinessViewAttributes<BusinessObjectClass>) viewAttributes).update(context, businessObject, horizontalPadding, position);
     }
 
   }
@@ -402,9 +398,9 @@ public class SmartRowListAdapter<ViewClass extends View>
   @SuppressLint("UseSparseArrays")
   private final SparseArray<Integer> types = new SparseArray<>();
 
-  public SmartRowListAdapter(Activity activity, LayoutInflater layoutInflater, int viewTypeCount)
+  public SmartRowListAdapter(Context context, int viewTypeCount)
   {
-    super(activity, layoutInflater, viewTypeCount);
+    super(context, viewTypeCount);
   }
 
   @Override
