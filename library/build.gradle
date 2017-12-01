@@ -6,22 +6,19 @@ apply plugin: "maven-publish"
 ext
 {
   jacksonVersion="2.8.7"
-  droid4meVersion="2.5.3"
-  appCompatVersion="25.4.0"
 }
 
 android
 {
-  compileSdkVersion 25
-  buildToolsVersion "25.0.3"
+  compileSdkVersion 27
 
   defaultConfig
   {
-    minSdkVersion 9
-    targetSdkVersion 25
+    minSdkVersion 14
+    targetSdkVersion 27
 
     versionCode 15
-    versionName "2.5.3"
+    versionName "2.6.0"
   }
 
   buildTypes
@@ -38,15 +35,15 @@ android
 dependencies
 {
   // Android
-  compile ("com.android.support:appcompat-v7:$appCompatVersion")
+  implementation ("com.android.support:appcompat-v7:27.0.1")
 
   // Smart&Soft
-  compile("com.smartnsoft:droid4me:$droid4meVersion")
+  implementation("com.smartnsoft:droid4me:2.6.0")
 
   // Third party libraries
-  compile("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
-  compile("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
-  compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+  implementation("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
+  implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
+  implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
 }
 
 task sourcesJar(type: Jar) {
