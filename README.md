@@ -4,7 +4,7 @@ droid4me.ext is an extension of the droid4me framework.
 
 ## Requirements
 
-- Android API v9+
+- Android API v14+
 
 ## Usage
 ### From JCenter
@@ -14,7 +14,7 @@ Library releases are available on Jcenter
 **Gradle**
 
 ```groovy
-compile 'com.smartnsoft:droid4me.ext:2.5.2'
+compile 'com.smartnsoft:droid4me.ext:2.6.0'
 ```
 
 **Maven**
@@ -23,7 +23,7 @@ compile 'com.smartnsoft:droid4me.ext:2.5.2'
 <dependency>
   <groupId>com.smartnsoft</groupId>
   <artifactId>droid4me.ext</artifactId>
-  <version>2.5.2</version>
+  <version>2.6.0</version>
   <type>aar</type>
 </dependency>
 ```
