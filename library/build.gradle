@@ -17,8 +17,8 @@ android
     minSdkVersion 14
     targetSdkVersion 27
 
-    versionCode 15
-    versionName "2.6.0"
+    versionCode 16
+    versionName "2.7.0"
   }
 
   buildTypes
@@ -35,10 +35,10 @@ android
 dependencies
 {
   // Android
-  implementation ("com.android.support:appcompat-v7:27.0.1")
+  implementation ("com.android.support:appcompat-v7:27.0.2")
 
   // Smart&Soft
-  implementation("com.smartnsoft:droid4me:2.6.0")
+  implementation("com.smartnsoft:droid4me:2.7.0")
 
   // Third party libraries
   implementation("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")

@@ -141,30 +141,34 @@ public abstract class FragmentAggregate<SmartApplicationClass extends SmartAppli
   protected void onCreateDone(Activity activity)
   {
     final Object actionBarObject = getActionBar(activity);
-    final int titleIdentifier = fragmentAnnotation.fragmentTitleIdentifier();
-    final int subTitleIdentifier = fragmentAnnotation.fragmentSubTitleIdentifier();
-    if (actionBarObject instanceof ActionBar)
+
+    if (fragmentAnnotation != null)
     {
-      final ActionBar actionBar = (ActionBar) actionBarObject;
-      if (titleIdentifier > 0)
+      final int titleIdentifier = fragmentAnnotation.fragmentTitleIdentifier();
+      final int subTitleIdentifier = fragmentAnnotation.fragmentSubTitleIdentifier();
+      if (actionBarObject instanceof ActionBar)
       {
-        actionBar.setTitle(titleIdentifier);
+        final ActionBar actionBar = (ActionBar) actionBarObject;
+        if (titleIdentifier > 0)
+        {
+          actionBar.setTitle(titleIdentifier);
+        }
+        if (subTitleIdentifier > 0)
+        {
+          actionBar.setSubtitle(subTitleIdentifier);
+        }
       }
-      if (subTitleIdentifier > 0)
+      else if (actionBarObject instanceof android.app.ActionBar)
       {
-        actionBar.setSubtitle(subTitleIdentifier);
-      }
-    }
-    else if (actionBarObject instanceof android.app.ActionBar)
-    {
-      final android.app.ActionBar actionBar = (android.app.ActionBar) actionBarObject;
-      if (titleIdentifier > 0)
-      {
-        actionBar.setTitle(titleIdentifier);
-      }
-      if (subTitleIdentifier > 0)
-      {
-        actionBar.setSubtitle(subTitleIdentifier);
+        final android.app.ActionBar actionBar = (android.app.ActionBar) actionBarObject;
+        if (titleIdentifier > 0)
+        {
+          actionBar.setTitle(titleIdentifier);
+        }
+        if (subTitleIdentifier > 0)
+        {
+          actionBar.setSubtitle(subTitleIdentifier);
+        }
       }
     }
   }
