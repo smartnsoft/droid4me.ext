@@ -38,12 +38,12 @@ dependencies
   implementation ("com.android.support:appcompat-v7:27.1.1")
 
   // Smart&Soft
-  implementation("com.smartnsoft:droid4me:2.9.0-SNAPSHOT")
+  api("com.smartnsoft:droid4me:2.9.0-SNAPSHOT")
 
   // Third party libraries
-  implementation("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
-  implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
-  implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+  api("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
+  api("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
+  api("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
 }
 
 task sourcesJar(type: Jar) {
