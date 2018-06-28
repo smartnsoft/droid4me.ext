@@ -29,11 +29,11 @@ import com.smartnsoft.droid4me.LifeCycle.BusinessObjectUnavailableException;
 import com.smartnsoft.droid4me.app.ActivityController;
 import com.smartnsoft.droid4me.app.SmartActivity;
 import com.smartnsoft.droid4me.app.SmartApplication;
-import com.smartnsoft.droid4me.app.SmartFragment;
 import com.smartnsoft.droid4me.app.Smartable;
 import com.smartnsoft.droid4me.app.SmartableActivity;
 import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActivityAnnotation;
 import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.FragmentAnnotation;
+import com.smartnsoft.droid4me.support.v4.app.SmartFragment;
 
 /**
  * An interceptor which is responsible for handling the {@links ActivityAnnotations} declarations on {@link SmartActivity} and {@link SmartFragment}.
