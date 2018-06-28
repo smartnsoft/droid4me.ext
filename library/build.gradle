@@ -5,7 +5,7 @@ apply plugin: "maven-publish"
 
 ext
 {
-  jacksonVersion="2.8.7"
+  jacksonVersion="2.9.4"
 }
 
 android
@@ -17,8 +17,8 @@ android
     minSdkVersion 14
     targetSdkVersion 27
 
-    versionCode 16
-    versionName "2.7.0"
+    versionCode 17
+    versionName "2.9.0-SNAPSHOT"
   }
 
   buildTypes
@@ -35,10 +35,10 @@ android
 dependencies
 {
   // Android
-  implementation ("com.android.support:appcompat-v7:27.0.2")
+  implementation ("com.android.support:appcompat-v7:27.1.1")
 
   // Smart&Soft
-  implementation("com.smartnsoft:droid4me:2.7.0")
+  implementation("com.smartnsoft:droid4me:2.9.0-SNAPSHOT")
 
   // Third party libraries
   implementation("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
