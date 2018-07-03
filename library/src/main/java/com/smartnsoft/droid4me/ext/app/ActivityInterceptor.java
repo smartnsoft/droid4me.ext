@@ -23,12 +23,12 @@
 package com.smartnsoft.droid4me.ext.app;
 
 import android.app.Activity;
+import android.app.Application;
 import android.os.Bundle;
 
 import com.smartnsoft.droid4me.LifeCycle.BusinessObjectUnavailableException;
 import com.smartnsoft.droid4me.app.ActivityController;
 import com.smartnsoft.droid4me.app.SmartActivity;
-import com.smartnsoft.droid4me.app.SmartApplication;
 import com.smartnsoft.droid4me.app.Smartable;
 import com.smartnsoft.droid4me.app.SmartableActivity;
 import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActivityAnnotation;
@@ -41,7 +41,7 @@ import com.smartnsoft.droid4me.support.v4.app.SmartFragment;
  * @author Jocelyn Girard, Willy Noel
  * @since 2014.04.08
  */
-public abstract class ActivityInterceptor<ActivityAggregateClass extends ActivityAggregate<? extends SmartApplication>, FragmentAggregateClass extends FragmentAggregate<? extends SmartApplication, ? extends Activity>>
+public abstract class ActivityInterceptor<ActivityAggregateClass extends ActivityAggregate<? extends Application>, FragmentAggregateClass extends FragmentAggregate<? extends Application, ? extends Activity>>
     implements ActivityController.Interceptor
 {
 
