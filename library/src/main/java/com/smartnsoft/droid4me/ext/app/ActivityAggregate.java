@@ -23,6 +23,7 @@
 package com.smartnsoft.droid4me.ext.app;
 
 import android.app.Activity;
+import android.app.Application;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
@@ -34,7 +35,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import com.smartnsoft.droid4me.app.SmartApplication;
 import com.smartnsoft.droid4me.app.Smartable;
 import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActionBarBehavior;
 import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.ActionBarTitleBehavior;
@@ -47,7 +47,7 @@ import com.smartnsoft.droid4me.support.v4.app.SmartFragment;
  * @author Jocelyn Girard, Willy Noel
  * @since 2014.04.08
  */
-public abstract class ActivityAggregate<SmartApplicationClass extends SmartApplication>
+public abstract class ActivityAggregate<SmartApplicationClass extends Application>
     implements FragmentManager.OnBackStackChangedListener
 {
 

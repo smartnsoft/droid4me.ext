@@ -24,13 +24,13 @@ package com.smartnsoft.droid4me.ext.app;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Application;
 import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.Fragment.SavedState;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 
-import com.smartnsoft.droid4me.app.SmartApplication;
 import com.smartnsoft.droid4me.ext.app.ActivityAnnotations.FragmentAnnotation;
 import com.smartnsoft.droid4me.log.Logger;
 import com.smartnsoft.droid4me.log.LoggerFactory;
@@ -40,7 +40,7 @@ import com.smartnsoft.droid4me.support.v4.app.SmartFragment;
  * @author Jocelyn Girard, Willy Noel
  * @since 2014.10.14
  */
-public abstract class FragmentAggregate<SmartApplicationClass extends SmartApplication, SmartActivityClass extends Activity>
+public abstract class FragmentAggregate<SmartApplicationClass extends Application, SmartActivityClass extends Activity>
 {
 
   public interface OnBackPressedListener
