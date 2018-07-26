@@ -30,7 +30,7 @@ import com.smartnsoft.droid4me.support.v4.app.SmartFragment;
  * @author Ludovic Roland
  * @since 2016.02.12
  */
-final class AbsSmartFragment
+public class AbsSmartFragment
     extends SmartFragment<Void>
 {
 

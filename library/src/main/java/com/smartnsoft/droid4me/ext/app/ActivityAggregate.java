@@ -124,7 +124,7 @@ public abstract class ActivityAggregate<SmartApplicationClass extends Applicatio
    *
    * @param fragmentClass the fragment to open
    */
-  public final void replaceFragment(Class<? extends SmartFragment<?>> fragmentClass)
+  public void replaceFragment(Class<? extends SmartFragment<?>> fragmentClass)
   {
     addOrReplaceFragment(fragmentClass, activityAnnotation.fragmentContainerIdentifier(),
         activityAnnotation.addFragmentToBackStack(), activityAnnotation.fragmentBackStackName(), null,

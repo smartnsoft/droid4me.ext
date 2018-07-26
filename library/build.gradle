@@ -5,7 +5,7 @@ apply plugin: "maven-publish"
 
 ext
 {
-  jacksonVersion="2.9.4"
+  jacksonVersion = "2.9.4"
 }
 
 android
@@ -18,7 +18,7 @@ android
     targetSdkVersion 27
 
     versionCode 17
-    versionName "2.9.0.002-SNAPSHOT"
+    versionName "2.9.0.004-SNAPSHOT"
   }
 
   buildTypes
@@ -35,7 +35,7 @@ android
 dependencies
 {
   // Android
-  implementation ("com.android.support:appcompat-v7:27.1.1")
+  implementation("com.android.support:appcompat-v7:27.1.1")
 
   // Smart&Soft
   api("com.smartnsoft:droid4me:2.9.0.003-SNAPSHOT")
@@ -59,6 +59,13 @@ task javadoc(type: Javadoc) {
   options.charSet = "UTF-8"
   options.overview = "src/main/javadoc/overview.html"
   options.links = ["http://docs.oracle.com/javase/7/docs/api/", "http://d.android.com/reference/"]
+
+  android.libraryVariants.all { variant ->
+    if (variant.name == 'release')
+    {
+      owner.classpath += variant.javaCompiler.classpath
+    }
+  }
 
   classpath += project.files(project.android.getBootClasspath().join(File.pathSeparator))
   failOnError = false
@@ -149,7 +156,7 @@ bintray
     {
       name = android.defaultConfig.versionName
       desc = "droid4me.ext is an extension of the droid4me framework."
-      released  = new Date()
+      released = new Date()
       vcsTag = "droid4me.ext-" + android.defaultConfig.versionName
     }
   }
