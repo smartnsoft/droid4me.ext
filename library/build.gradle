@@ -18,7 +18,7 @@ android
     targetSdkVersion 27
 
     versionCode 17
-    versionName "2.9.0.004-SNAPSHOT"
+    versionName "2.9.0"
   }
 
   buildTypes
@@ -38,7 +38,7 @@ dependencies
   implementation("com.android.support:appcompat-v7:27.1.1")
 
   // Smart&Soft
-  api("com.smartnsoft:droid4me:2.9.0.003-SNAPSHOT")
+  api("com.smartnsoft:droid4me:2.9.0")
 
   // Third party libraries
   api("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
